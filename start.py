@@ -1876,12 +1876,9 @@ class Principal(QMainWindow, gttgis.Ui_MainWindow):
         symbolLayer.setFillColor(QColor(qRgb(143, 212, 0)))
         symbolLayer.setOutlineWidth(0.2)
         symbolLayer.setSize(6)
-
-
         vl = QgsVectorLayer("Point?crs=EPSG:25830", "temp", "memory")
         vl.startEditing()
         pr = vl.dataProvider()
-
         pr.addAttributes([QgsField("info", QVariant.String)])
         vl.setCustomProperty("embeddedWidgets/count", "0")
         vl.setCustomProperty("labeling", "pal")
