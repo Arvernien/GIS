@@ -1,0 +1,1692 @@
+# -*- coding: utf-8 -*-
+# encoding: utf-8
+
+from qgis.gui import *
+from qgis.core import *
+from PyQt4.QtGui import *
+from PyQt4.QtCore import *
+from math import sqrt, cos, sin, pi
+from xml.dom.minidom import parse
+import sys
+import psycopg2
+import os
+import gttgis
+import valor
+import criterio
+
+
+class clase_criterio(QWidget, criterio.Ui_Form):
+    def __init__(self, tabla, campo, icono, unico, tipologia, nombre):
+        super(clase_criterio, self).__init__(parent=None)
+        self.setupUi(self)
+        self.cambiaIcono(icono)
+        self.setUnico(unico)
+        self.tipo(tipologia)
+        self.cambiaNombre(nombre)
+        self.setGeometry(QRect(0, 0, 260, 40))
+        self.tabla = tabla
+        self.campo = campo
+
+    def cambiaIcono(self, icon):
+        self.icono.setPixmap(QPixmap(icon))
+        self.icono.setScaledContents(True)
+        self.icono.setMargin(6)
+
+    def setUnico(self, estado):
+        self.campounico = estado
+
+    def cambiaNombre(self, nombre):
+        self.n_criterio.setText(nombre)
+
+    def tipo(self, valor):
+        self.tipol = valor
+        if valor == 1:
+            x = self.criterio.x()
+            y = self.criterio.y()
+            w = self.criterio.width()
+            h = self.criterio.height()
+            self.criterio.setParent(None)
+            self.criterio = QComboBox()
+            self.criterio.setGeometry(QRect(46, 16, 190, 20))
+            self.criterio.setParent(self)
+            # self.gridLayout.addWidget(self.criterio)
+        if valor == 0:
+            return
+
+
+
+class listBusquedas(QListWidget):
+    def __init__(self, parent):
+        super(listBusquedas, self).__init__(parent)
+        parent.layout().addWidget(self)
+        self.setDragDropMode(QAbstractItemView.DropOnly)
+        self.setDefaultDropAction(Qt.CopyAction)
+        self.setFrameShape(QFrame.NoFrame)
+        self.setSpacing(3)
+
+
+    def dropEvent(self, event):
+        index = event.source()._drag_info[1]
+        print index
+        itm = event.source().item(index)
+        obj = event.source().itemWidget(itm)
+
+        valores = []
+
+        if obj.tipol == 1:
+            print obj.criterio.currentIndex()
+            for i in range(0, obj.criterio.count()):
+                valores.append(obj.criterio.itemText(i))
+
+        j = clase_criterio(obj.tabla, obj.campo, obj.icono.pixmap(), obj.campounico, obj.tipol, obj.n_criterio.text())
+        if obj.tipol == 1:
+            j.criterio.addItems(valores)
+            j.criterio.setCurrentIndex(obj.criterio.currentIndex())
+
+
+        qlwi = QListWidgetItem(self)
+        qlwi.setSizeHint(QSize(150, 40))
+        self.addItem(qlwi)
+        self.setItemWidget(qlwi, j)
+
+
+
+
+
+
+
+
+
+
+class ValorWidget(QWidget, valor.Ui_Form):
+    advierte = pyqtSignal(QObject, QObject, str)
+    def __init__(self, cargo, dni, titular, ref_completa, form, contenedor, parent=None):
+        super(ValorWidget, self).__init__(parent)
+        self.form = form
+        self.contenedor = contenedor
+        self.ref_completa = ref_completa
+        self.setupUi(self)
+        self.nif.setText(unicode(dni))
+        self.cargo.setText(cargo)
+        self.titular.setText(unicode(titular))
+        self.info_ot.hide()
+
+        self.showinfo.clicked.connect(self.presionado)
+        self.advierte.connect(resizeResultado)
+
+    def presionado(self):
+        print "emitiendo"
+        self.advierte.emit(self, self.form, self.contenedor)
+
+    def getRefCompleta(self):
+        return self.ref_completa
+
+class customAsk(QInputDialog):
+    def __init__(self, parent, texto):
+        QInputDialog.__init__(self, parent, QtCore.Qt.FramelessWindowHint)
+        self.setAttribute(QtCore.Qt.WA_TranslucentBackground, True)
+        self.setLabelText(texto)
+        self.setOkButtonText("Aceptar")
+        self.setCancelButtonText("Cancelar")
+        self.show()
+
+    def devuelve(self):
+        return self.textValue()
+
+    def reubica(self, canvas):
+
+        x = canvas.width() - 160
+        y = 10
+        self.move(x, y)
+
+    def paintEvent(self, event):
+        # get current window size
+        s = self.size()
+        qp = QPainter()
+        pen = QPen()
+        pen.setBrush(QColor(qRgb(143, 212, 0)))
+        pen.setWidth(2)
+        pen.setStyle(Qt.SolidLine)
+        qp.begin(self)
+        qp.setRenderHint(QPainter.Antialiasing, True)
+        qp.setPen(pen)
+        qp.setBrush(QColor(qRgb(255, 255, 255)))
+        qp.drawRoundedRect(0, 0, s.width(), s.height(), 10, 10)
+        qp.end()
+
+class listCriterios(QListWidget):
+    _drag_info = []
+    def __init__(self, parent):
+        super(listCriterios,self).__init__(parent)
+        self.setGeometry(20, 20, parent.width() - 40, parent.height() - 40)
+        self.setViewMode(QListView.IconMode)
+        self.setSpacing(5)
+
+    def startDrag(self, actions):
+        self._drag_info[:] = [str(self.objectName())]
+        for item in self.selectedItems():
+            self._drag_info.append(self.row(item))
+        super(listCriterios, self).startDrag(actions)
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.accept()
+        else:
+            super(listCriterios, self).dragEnterEvent(event)
+
+    def dragMoveEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.setDropAction(QtCore.Qt.CopyAction)
+            event.accept()
+        else:
+            super(listCriterios, self).dragMoveEvent(event)
+
+    def dropEvent(self, event):
+        event.ignore()
+
+    def reubica(self):
+        self.setGeometry(20, 20, self.parent().width() - 40, self.parent().height() - 40)
+
+
+
+class pool_Window(QWidget):
+    def __init__(self, parent):
+        super(pool_Window, self).__init__(parent)
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        self.setGeometry(QRect(10, 10, parent.width()-20, parent.height()-20))
+        self.layout = QVBoxLayout()
+        self.setLayout = self.layout
+        self.tabWidget = QTabWidget(self)
+        self.tabWidget.setGeometry(QRect(10, 10, self.tabWidget.parent().width()-20, self.tabWidget.parent().height()-20))
+        self.listIBI = listCriterios(self)
+        self.listIBI.setViewMode(QListView.IconMode)
+        self.listBASURA = listCriterios(self)
+        self.listVADOS = listCriterios(self)
+        self.listEXPEDIENTES = listCriterios(self)
+        self.listAGUAS = listCriterios(self)
+        self.listICIO = listCriterios(self)
+        self.listPLUSVALIAS = listCriterios(self)
+        self.listMULTAS = listCriterios(self)
+        self.tabWidget.addTab(self.listIBI, QIcon(":/icons/25694.png"), "IBI",)
+        self.tabWidget.addTab(self.listVADOS, QIcon(":/icons/vados.png"), "VADOS")
+        self.tabWidget.addTab(self.listBASURA, QIcon(":/icons/basura.png"), "BASURAS")
+        self.tabWidget.addTab(self.listAGUAS, QIcon(":/icons/grifo.png"), "AGUAS")
+        self.tabWidget.addTab(self.listPLUSVALIAS, QIcon(":/icons/plusvalias.png"), "PLUSVALIAS")
+        self.tabWidget.addTab(self.listICIO, QIcon(":/icons/gancho.png"), "ICIO")
+        self.tabWidget.addTab(self.listEXPEDIENTES, QIcon(":/icons/expediente.png"), "EXPEDIENTES")
+        self.tabWidget.addTab(self.listMULTAS, "MULTAS")
+        self.layout.addWidget(self.tabWidget)
+
+    def reubica(self, canvas):
+
+        self.setGeometry(10, 10, canvas.width()-20, canvas.height()-20)
+        self.listWidget.reubica()
+
+    def paintEvent(self, event):
+        # get current window size
+        s = self.size()
+        qp = QPainter()
+        pen = QPen()
+        pen.setBrush(QColor(qRgb(143, 212, 0)))
+        pen.setWidth(2)
+        pen.setStyle(Qt.SolidLine)
+        qp.begin(self)
+        qp.setRenderHint(QPainter.Antialiasing, True)
+        qp.setPen(pen)
+        qp.setBrush(QColor(qRgb(255, 255, 255)))
+        qp.drawRoundedRect(0, 0, s.width(), s.height(), 10, 10)
+        qp.end()
+
+class panel_id(QWidget):
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        x = parent.width() - 160
+        y = 10
+
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        #self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+        self.layout = QVBoxLayout()
+        self.setGeometry(x, y, 150, 30)
+        self.finca = QLabel()
+        self.finca.setAlignment(Qt.AlignCenter)
+        self.finca.setText(u"Sin selección")
+        self.finca.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.layout.addWidget(self.finca)
+        self.setLayout(self.layout)
+
+
+    def reubica(self, canvas):
+
+        x = canvas.width() - 160
+        y = 10
+        self.move(x, y)
+
+    def paintEvent(self, event):
+        # get current window size
+        s = self.size()
+        qp = QPainter()
+        pen = QPen()
+        pen.setBrush(QColor(qRgb(143, 212, 0)))
+        pen.setWidth(2)
+        pen.setStyle(Qt.SolidLine)
+        qp.begin(self)
+        qp.setRenderHint(QPainter.Antialiasing, True)
+        qp.setPen(pen)
+        qp.setBrush(QColor(qRgb(255, 255, 255)))
+        qp.drawRoundedRect(0, 0, s.width(), s.height(), 10, 10)
+        qp.end()
+
+
+
+class loading(QWidget):
+    def __init__(self, texto, parent):
+        QWidget.__init__(self, parent=None)
+        self.movie = QMovie(":/img/loading.gif", QByteArray(), self)
+        self.movie.setScaledSize(QSize(25, 25))
+        size = self.movie.scaledSize()
+        self.titulo = QLabel()
+        self.titulo.setText(texto)
+        self.titulo.setAlignment(Qt.AlignHCenter)
+        self.titulo.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
+        self.movie_screen = QLabel()
+        self.movie_screen.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.movie_screen.setAlignment(Qt.AlignCenter)
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
+        self.setObjectName("principal")
+        self.setStyleSheet("QWidget {border: 2px rgb(143,212,0);}")
+        center = parent.mapToGlobal(parent.frameGeometry().center())
+        x = center.x() - 75
+        y = center.y() - 25
+        self.setGeometry(x, y, 150, 50)
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(self.titulo)
+        main_layout.addWidget(self.movie_screen)
+        self.setLayout(main_layout)
+        self.movie.setCacheMode(QMovie.CacheAll)
+        self.movie.setSpeed(100)
+        self.movie_screen.setMovie(self.movie)
+        self.movie.start()
+
+    def __del__(self):
+        print "Cerrado"
+
+    def paintEvent(self, event):
+        # get current window size
+        s = self.size()
+        qp = QPainter()
+        qp.begin(self)
+        qp.setRenderHint(QPainter.Antialiasing, True)
+        qp.setPen(QColor(qRgb(143, 212, 0)))
+        qp.setBrush(QColor(qRgb(211, 211, 211)))
+        qp.drawRoundedRect(0, 0, s.width(), s.height(), 10, 10)
+        qp.end()
+
+
+class Principal(QMainWindow, gttgis.Ui_MainWindow):
+    visibleCriterios = False
+
+    class BufferLineal(QgsMapToolEmitPoint):
+        def __init__(self, canvas, form):
+            self.form = form
+            self.canvas = canvas
+            QgsMapToolEmitPoint.__init__(self, self.canvas)
+            self.form.panel_resultados.show()
+            self.rubberBand = QgsRubberBand(self.canvas, QgsWKBTypes.LineString)
+            self.rubberBand.setBorderColor(QColor(143, 212, 0, 255))
+            self.rubberBand.setWidth(2)
+            self.isEmitting = False
+            self.reset()
+            self.puntos = []
+
+        def canvasMoveEvent(self, e):
+            if not self.isEmitting:
+                return
+            self.endPoint = self.toMapCoordinates(e.pos())
+            self.previo = []
+            self.previo = list(self.puntos)
+            self.previo.append(self.endPoint)
+            print len(self.previo), len(self.puntos)
+            self.showRect(self.previo)
+
+        def canvasDoubleClickEvent(self, e):
+            self.isEmitting = False
+            self.showRect(self.puntos)
+            print len(self.puntos)
+            radio_buffer = customAsk(self.canvas, "Introduzca distancia de buffer:")
+            radio_buffer.exec_()
+            if radio_buffer.result() == 1:
+                print radio_buffer.devuelve(), self.rubberBand.asGeometry()
+                self.getgeom(self.rubberBand.asGeometry(), radio_buffer.devuelve())
+            #getRefs(self.canvas, self.rubberBand.asGeometry(), self.form)
+            self.reset()
+
+
+        def getgeom(self, g, radio):
+            p = loading("Representando parcelas seleccionadas", self.canvas)
+            p.show()
+            conn = psycopg2.connect("dbname='oliva' user='postgres' password='123456' host='9.56.3.159' port='5432'")
+            cur = conn.cursor()
+            geometria = g.exportToWkt()
+            sql = """SELECT ST_AsText(p.geom), p.refcat FROM cartografia.parcela p \
+                                    WHERE ST_DWithin(p.geom, ST_GeomFromText(%(geom)s, 25830), %(radio)s);"""
+            cur.execute(sql, {"geom": geometria, "radio": radio})
+            rows = cur.fetchall()
+            self.canvas.freeze()
+            geometrias = []
+            fincas = []
+            for row in rows:
+                geometrias.append(row[0])
+                fincas.append(row[1])
+            self.form.panel_resultados.finca.setText(str(cur.rowcount) + " fincas seleccionadas.")
+            Resaltador(self.canvas, geometrias, self.form)
+            muestraFincas(fincas, self.form)
+            self.canvas.freeze(False)
+            self.canvas.refresh()
+            p.close()
+
+        def reset(self):
+            self.puntos = []
+            self.isEmittingPoint = False
+            self.rubberBand.reset(QGis.Line)
+
+        def canvasPressEvent(self, e):
+            if self.isEmitting == False:
+                limpiar(self.canvas, self.form)
+            self.startPoint = self.toMapCoordinates(e.pos())
+            self.isEmitting = True
+            self.puntos.append(self.startPoint)
+            self.showRect(self.puntos)
+
+        def showRect(self, puntos):
+            self.rubberBand.reset(QGis.Line)
+            if len(puntos) == 1:
+                return
+            for pt in puntos:
+                self.rubberBand.addPoint(pt, True)
+            self.rubberBand.show()
+
+    class IdTool(QgsMapToolEmitPoint):
+        def __init__(self, canvas, form):
+            self.form = form
+            self.canvas = canvas
+            QgsMapToolEmitPoint.__init__(self, self.canvas)
+            self.form.panel_resultados.show()
+            self.deactivated.connect(self.quita)
+
+        def canvasPressEvent(self, e):
+            limpiar(self.canvas, self.form)
+            p = self.toMapCoordinates(e.pos())
+            punto = QgsPoint(p.x(), p.y())
+            getReferencia(self.canvas, QgsGeometry.fromPoint(punto), self.form)
+
+        def quita(self):
+            self.form.panel_resultados.hide()
+
+    class bufferradial(QgsMapToolEmitPoint):
+        def __init__(self, canvas, form):
+            self.form = form
+            self.canvas = canvas
+            QgsMapToolEmitPoint.__init__(self, self.canvas)
+            form.panel_resultados.show()
+
+        def canvasPressEvent(self, e):
+            limpiar(self.canvas, self.form)
+            self.startPoint = self.toMapCoordinates(e.pos())
+            self.punto = QgsPoint(self.startPoint.x(), self.startPoint.y())
+            radio_buffer = customAsk(self.canvas, "Introduzca radio en metros:")
+            radio_buffer.exec_()
+            if radio_buffer.result() == 1:
+                self.getgeom(self.punto, radio_buffer.devuelve())
+                form.panel_resultados.show()
+            else:
+                print "No hay radio"
+
+        def getgeom(self, punto, radio):
+            p = loading("Representando parcelas seleccionadas", self.canvas)
+            p.show()
+            conn = psycopg2.connect("dbname='oliva' user='postgres' password='123456' host='9.56.3.159' port='5432'")
+            cur = conn.cursor()
+            geometria = punto.wellKnownText()
+            sql = """SELECT ST_AsText(p.geom), p.refcat FROM cartografia.parcela p \
+                        WHERE ST_DWithin(ST_Centroid(p.geom), ST_GeomFromText(%(geom)s, 25830), %(radio)s);"""
+            cur.execute(sql, {"geom": geometria, "radio": radio})
+            rows = cur.fetchall()
+            self.canvas.freeze()
+            geometrias = []
+            fincas = []
+            for row in rows:
+                geometrias.append(row[0])
+                fincas.append(row[1])
+            self.form.panel_resultados.finca.setText(str(cur.rowcount) + " fincas seleccionadas.")
+            Resaltador(self.canvas, geometrias, self.form)
+            muestraFincas(fincas, self.form)
+            self.canvas.freeze(False)
+            self.canvas.refresh()
+            p.close()
+
+
+
+    class Circulo(QgsMapToolEmitPoint):
+        def __init__(self, canvas, form):
+            self.form = form
+            self.canvas = canvas
+            QgsMapToolEmitPoint.__init__(self, self.canvas)
+            self.form.panel_resultados.show()
+            self.rubberBand = QgsRubberBand(self.canvas, QGis.Polygon)
+            self.rubberBand.setBorderColor(QColor(143, 212, 0, 255))
+            self.rubberBand.setFillColor(QColor(143, 212, 0, 100))
+            self.rubberBand.setWidth(1)
+            self.reset()
+
+        def reset(self):
+            self.startPoint = self.endPoint = None
+            self.isEmittingPoint = False
+            self.rubberBand.reset(QGis.Polygon)
+
+        def canvasPressEvent(self, e):
+            limpiar(self.canvas, self.form)
+            self.startPoint = self.toMapCoordinates(e.pos())
+            self.endPoint = self.startPoint
+            self.isEmittingPoint = True
+            self.showRect(self.startPoint, self.endPoint)
+
+        def canvasReleaseEvent(self, e):
+            self.isEmittingPoint = False
+            r = self.rubberBand.asGeometry()
+            getRefs(self.canvas, r, self.form)
+            self.reset()
+
+        def canvasMoveEvent(self, e):
+            if not self.isEmittingPoint:
+                return
+            self.endPoint = self.toMapCoordinates(e.pos())
+            self.showRect(self.startPoint, self.endPoint)
+
+        def circle(self):
+            a = self.calcirc(self.startPoint, self.endPoint)
+            print a
+            return QgsGeometry.fromPolygon(a)
+
+        def calcirc(self, startPoint, endPoint):
+            segments = 100
+            radio = sqrt((startPoint.x() - endPoint.x()) ** 2 + (startPoint.y() - endPoint.y()) ** 2)
+            print radio
+            pts = []
+            for i in range(segments):
+                a = i * (2.0 * pi / segments)
+                p = QgsPoint(startPoint.x() + radio * cos(a), startPoint.y() + radio * sin(a))
+                pts.append(p)
+            return pts
+
+        def showRect(self, startPoint, endPoint):
+            self.rubberBand.reset(QGis.Polygon)
+            if startPoint.x() == endPoint.x() or startPoint.y() == endPoint.y():
+                return
+
+            puntos = self.calcirc(startPoint, endPoint)
+            for pt in puntos:
+                self.rubberBand.addPoint(pt, True)
+
+            self.rubberBand.show()
+
+    class SelLibre(QgsMapToolEmitPoint):
+        def __init__(self, canvas, form):
+            self.form = form
+            self.canvas = canvas
+            QgsMapToolEmitPoint.__init__(self, self.canvas)
+            self.form.panel_resultados.show()
+            self.rubberBand = QgsRubberBand(self.canvas, QGis.Polygon)
+            self.rubberBand.setBorderColor(QColor(143, 212, 0, 255))
+            self.rubberBand.setFillColor(QColor(143, 212, 0, 100))
+            self.rubberBand.setWidth(1)
+            self.acero()
+            self.reset()
+
+        def acero(self):
+            self.puntos = []
+            self.previo = []
+
+        def reset(self):
+            self.previo = []
+            self.puntos = []
+            self.startPoint = self.endPoint = None
+            self.isEmittingPoint = False
+            self.rubberBand.reset(QGis.Polygon)
+
+        def canvasPressEvent(self, e):
+            if self.isEmittingPoint == False:
+                limpiar(self.canvas, self.form)
+            self.startPoint = self.toMapCoordinates(e.pos())
+            self.isEmittingPoint = True
+            self.puntos.append(self.startPoint)
+
+        def canvasDoubleClickEvent(self, e):
+            self.isEmittingPoint = False
+            self.showRect(self.puntos)
+            print len(self.puntos)
+            getRefs(self.canvas, self.rubberBand.asGeometry(), self.form)
+            self.reset()
+
+        def canvasReleaseEvent(self, e):
+            return
+
+        def canvasMoveEvent(self, e):
+            if not self.isEmittingPoint:
+                return
+            self.endPoint = self.toMapCoordinates(e.pos())
+            self.previo = []
+            self.previo = list(self.puntos)
+            self.previo.append(self.endPoint)
+            print len(self.previo), len(self.puntos)
+            self.showRect(self.previo)
+
+        def circle(self):
+            a = calcirc(self.startPoint, self.endPoint)
+            print a
+            return QgsGeometry.fromPolygon(a)
+
+        def showRect(self, puntos):
+            self.rubberBand.reset(QGis.Polygon)
+            if len(puntos) == 1:
+                return
+            for pt in puntos:
+                self.rubberBand.addPoint(pt, True)
+            self.rubberBand.show()
+
+    class RectangleMapTool(QgsMapToolEmitPoint):
+        def __init__(self, canvas, form):
+            self.form = form
+            self.canvas = canvas
+            QgsMapToolEmitPoint.__init__(self, self.canvas)
+            self.form.panel_resultados.show()
+            self.rubberBand = QgsRubberBand(self.canvas, False)
+            self.rubberBand.setBorderColor(QColor(143, 212, 0, 255))
+            self.rubberBand.setFillColor(QColor(143, 212, 0, 100))
+            self.rubberBand.setWidth(1)
+            self.reset()
+
+        def reset(self):
+            self.startPoint = self.endPoint = None
+            self.isEmittingPoint = False
+            self.rubberBand.reset(QGis.Polygon)
+
+        def canvasPressEvent(self, e):
+            limpiar(self.canvas, self.form)
+            self.startPoint = self.toMapCoordinates(e.pos())
+            self.endPoint = self.startPoint
+            self.isEmittingPoint = True
+            self.showRect(self.startPoint, self.endPoint)
+
+        def canvasReleaseEvent(self, e):
+            self.isEmittingPoint = False
+            r = self.rectangle()
+            if r is not None:
+                print "Rectangle:", r.xMinimum(), r.yMinimum(), r.xMaximum(), r.yMaximum()
+                getRefs(self.canvas, QgsGeometry.fromRect(r), self.form)
+            self.reset()
+
+
+
+        def canvasMoveEvent(self, e):
+            if not self.isEmittingPoint:
+                return
+
+            self.endPoint = self.toMapCoordinates(e.pos())
+            self.showRect(self.startPoint, self.endPoint)
+
+        def showRect(self, startPoint, endPoint):
+            self.rubberBand.reset(QGis.Polygon)
+            if startPoint.x() == endPoint.x() or startPoint.y() == endPoint.y():
+                return
+
+            point1 = QgsPoint(startPoint.x(), startPoint.y())
+            point2 = QgsPoint(startPoint.x(), endPoint.y())
+            point3 = QgsPoint(endPoint.x(), endPoint.y())
+            point4 = QgsPoint(endPoint.x(), startPoint.y())
+
+            self.rubberBand.addPoint(point1, False)
+            self.rubberBand.addPoint(point2, False)
+            self.rubberBand.addPoint(point3, False)
+            self.rubberBand.addPoint(point4, True)  # true to update canvas
+            self.rubberBand.show()
+
+        def rectangle(self):
+            if self.startPoint is None or self.endPoint is None:
+                return None
+            elif self.startPoint.x() == self.endPoint.x() or self.startPoint.y() == self.endPoint.y():
+                return None
+
+            return QgsRectangle(self.startPoint, self.endPoint)
+
+    class l_capa(QWidget):
+        def __init__(self, param, parent):
+            super(Principal.l_capa, self).__init__(parent)
+            self.layout = QFormLayout()
+            self.check = QCheckBox()
+            self.check.setMaximumHeight(13)
+            self.layout.addWidget(self.check)
+            self.setLayout(self.layout)
+            self.check.setTristate(False)
+            self.check.setChecked(True)
+            self.check.setText(param)
+            self.check.setStyleSheet("QCheckBox::indicator:unchecked {image: url(:/img/eyegray.png);}\
+                        QCheckBox::indicator:checked {image: url(:/img/eye.png);}")
+            self.check.clicked.connect(lambda: parent.visualizaCapa())
+
+
+
+    def __init__(self, parent=None):
+        super(Principal, self).__init__(parent)
+        self.setupUi(self)
+        QgsApplication.setPrefixPath('.', True)
+        QgsApplication.initQgis()
+        self.canvas = QgsMapCanvas()
+        self.layout.addWidget(self.canvas)
+        #self.criterios = pool_Window(self.canvas)
+        #cargacriterios(self.criterios)
+        self.lBusquedas = listBusquedas(self.g_busquedas)
+        self.runSQL = QPushButton(self.g_busquedas)
+        self.g_busquedas.layout().addWidget(self.runSQL)
+        self.runSQL.setText("Ejecutar")
+
+
+        self.canvas.setCanvasColor(Qt.white)
+        self.canvas.enableAntiAliasing(True)
+        self.canvas.setCrsTransformEnabled(True)
+        self.canvas.mapRenderer().setDestinationCrs(QgsCoordinateReferenceSystem('25830'))
+        self.canvas.setDestinationCrs(QgsCoordinateReferenceSystem('25830'))
+        self.canvas.setMapUnits(0)
+        self.canvas.setObjectName("marco")
+        self.escala = QLabel()
+        self.coord = QLabel()
+        self.escala.setAlignment(Qt.AlignLeft)
+        self.statusBar.addWidget(self.escala)
+        self.resultados_ibi.setViewMode(QListView.ListMode)
+        self.rubberBand = QgsRubberBand(self.canvas, False)
+        self.rubberBand.setBorderColor(QColor(143, 212, 0, 255))
+        self.rubberBand.setFillColor(QColor(143, 212, 0, 100))
+        self.rubberBand.setWidth(1)
+        self.rb = QgsRubberBand(self.canvas, False)
+        self.rb.reset(QGis.Polygon)
+        self.rb.setBorderColor(QColor(255, 0, 0, 255))
+        self.rb.setWidth(3)
+
+
+
+
+
+
+        self.jar = []
+        self.tempcapa()
+        layer = QgsMapLayerRegistry.instance().mapLayersByName("temp")[0]
+        self.jar.append(QgsMapCanvasLayer(layer))
+        self.CargaCapa("masa", "25830", "Manzanas")
+        self.CargaCapa("parcela", "25830", "Parcelas")
+        self.CargaCapa("constru", "25830", "Construcciones")
+        self.CargaCapa("calles", "25830", "Lineales")
+        self.CargaCapa("landuse", "25830", "Terreno")
+        self.PNOA()
+        #Consulta(self)
+        print QgsProject.instance().layerTreeRoot().findLayerIds()
+        #self.Google()
+
+
+
+
+        self.canvas.setLayerSet(self.jar)
+        self.g_busquedas.hide()
+        self.g_seleccion.hide()
+        self.g_capas.hide()
+        self.g_resultados.hide()
+        self.sel_rect.clicked.connect(self.f_sel_Rect)
+        self.sel_custom.clicked.connect(self.f_sel_libre)
+        self.sel_circ.clicked.connect(self.f_sel_circ)
+        self.sel_idtool.clicked.connect(self.f_id_tool)
+        self.canvas.mapCanvasRefreshed.connect(self.actTitulo)
+        self.c_seleccion.clicked.connect(self.showSeleccion)
+        self.c_Busquedas.clicked.connect(self.showBusquedas)
+        self.c_resultados.clicked.connect(self.showResultados)
+        self.fincas.currentIndexChanged.connect(lambda: getInfo(self.fincas.currentText(), self))
+        self.resultados_ibi.itemClicked.connect(lambda: getDatosIbi(self.resultados_ibi.itemWidget(self.resultados_ibi.currentItem()),self))
+        self.c_capas.clicked.connect(self.showCapas)
+        self.sel_Del.clicked.connect(lambda: limpiar(self.canvas, self))
+        self.sel_buf_point.clicked.connect(self.f_buf_rad)
+        self.self_buf_line.clicked.connect(self.f_buf_lin)
+        self.c_criterios.clicked.connect(self.showCriterios)
+        self.panel_resultados = panel_id(self.canvas)
+        self.runSQL.clicked.connect(lambda: montaSQL(self))
+        self.panel_resultados.hide()
+
+
+
+        for lyr in ['Construcciones', 'Parcelas', 'Manzanas', 'Terreno', 'Lineales','PNOA']:
+            c = self.l_capa(lyr, self)
+            qlwi = QListWidgetItem(self.listCapas)
+            qlwi.setSizeHint(c.sizeHint())
+            self.listCapas.addItem(qlwi)
+            self.listCapas.setItemWidget(qlwi, c)
+
+
+    def bufferpoint(self):
+        input = customAsk(self.canvas, "Introduzca radio del buffer en metros:")
+        input.exec_()
+        if input.result() == 1:
+            print input.devuelve()
+        else:
+            print "No"
+
+
+
+
+
+
+    def f_buf_rad(self):
+        self.h_buf_rad = self.bufferradial(self.canvas, self)
+        self.canvas.setMapTool(self.h_buf_rad)
+        pixmap = QPixmap(":/icons/bufferpunto.png").scaled(QSize(20, 20), Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+        cursor = QCursor(pixmap, 0, 0)
+        self.canvas.setCursor(cursor)
+
+    def f_buf_lin(self):
+        self.h_buf_lin = self.BufferLineal(self.canvas, self)
+        self.canvas.setMapTool(self.h_buf_lin)
+        pixmap = QPixmap(":/icons/bufferlineal.png").scaled(QSize(20, 20), Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+        cursor = QCursor(pixmap, 0, 0)
+        self.canvas.setCursor(cursor)
+
+    def f_sel_Rect(self):
+        self.h_rectangulo = self.RectangleMapTool(self.canvas, self)
+        self.canvas.setMapTool(self.h_rectangulo)
+        pixmap = QPixmap(":/icons/rectangulo.png").scaled(QSize(20, 20), Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+        cursor = QCursor(pixmap, 0, 0)
+        self.canvas.setCursor(cursor)
+
+    def f_sel_libre(self):
+        self.h_selLibre = self.SelLibre(self.canvas, self)
+        self.canvas.setMapTool(self.h_selLibre)
+        pixmap = QPixmap(":/icons/custom.png").scaled(QSize(20, 20), Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+        cursor = QCursor(pixmap, 0, 0)
+        self.canvas.setCursor(cursor)
+
+    def f_sel_circ(self):
+        self.h_selCirc = self.Circulo(self.canvas, self)
+        self.canvas.setMapTool(self.h_selCirc)
+        pixmap = QPixmap(":/icons/circulo.png").scaled(QSize(20, 20), Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+        cursor = QCursor(pixmap, 0, 0)
+        self.canvas.setCursor(cursor)
+
+    def f_id_tool(self):
+        self.jare = self.IdTool(self.canvas, self)
+        self.canvas.setMapTool(self.jare)
+        pixmap = QPixmap(":/icons/info.png").scaled(QSize(20, 20), Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+        cursor = QCursor(pixmap, 0, 0)
+        self.canvas.setCursor(cursor)
+
+    def tempcapa(self):
+
+
+        symbolLayer = QgsSvgMarkerSymbolLayerV2()
+        symbolLayer.setPath("rsc/mas.svg")
+        symbolLayer.setColor(QColor(qRgb(143, 212, 0)))
+        symbolLayer.setFillColor(QColor(qRgb(143, 212, 0)))
+        symbolLayer.setOutlineWidth(0.2)
+        symbolLayer.setSize(6)
+        for k, v in symbolLayer.properties().iteritems():
+            print k, ":", v
+
+        vl = QgsVectorLayer("Point?crs=EPSG:25830", "temp", "memory")
+        vl.rendererV2().symbols()[0].changeSymbolLayer(0, symbolLayer)
+        vl.startEditing()
+        pr = vl.dataProvider()
+        pr.addAttributes([QgsField("info", QVariant.String)])
+        vl.setCustomProperty("embeddedWidgets/count", "0")
+        vl.setCustomProperty("labeling", "pal")
+        vl.setCustomProperty("labeling/addDirectionSymbol", "false")
+        vl.setCustomProperty("labeling/angleOffset", "0")
+        vl.setCustomProperty("labeling/blendMode", "0")
+        vl.setCustomProperty("labeling/bufferBlendMode", "0")
+        vl.setCustomProperty("labeling/bufferColorA", "255")
+        vl.setCustomProperty("labeling/bufferColorB", "255")
+        vl.setCustomProperty("labeling/bufferColorG", "255")
+        vl.setCustomProperty("labeling/bufferColorR", "255")
+        vl.setCustomProperty("labeling/bufferDraw", "false")
+        vl.setCustomProperty("labeling/bufferJoinStyle", "128")
+        vl.setCustomProperty("labeling/bufferNoFill", "false")
+        vl.setCustomProperty("labeling/bufferSize", "1")
+        vl.setCustomProperty("labeling/bufferSizeInMapUnits", "false")
+        vl.setCustomProperty("labeling/bufferSizeMapUnitScale", "0,0,0,0,0,0")
+        vl.setCustomProperty("labeling/bufferTransp", "0")
+        vl.setCustomProperty("labeling/centroidInside", "false")
+        vl.setCustomProperty("labeling/centroidWhole", "false")
+        vl.setCustomProperty("labeling/decimals", "3")
+        vl.setCustomProperty("labeling/displayAll", "false")
+        vl.setCustomProperty("labeling/dist", "0")
+        vl.setCustomProperty("labeling/distInMapUnits", "false")
+        vl.setCustomProperty("labeling/distMapUnitScale", "0,0,0,0,0,0")
+        vl.setCustomProperty("labeling/drawLabels", "true")
+        vl.setCustomProperty("labeling/enabled", "true")
+        vl.setCustomProperty("labeling/fieldName", "info")
+        vl.setCustomProperty("labeling/fitInPolygonOnly", "false")
+        vl.setCustomProperty("labeling/fontCapitals", "0")
+        vl.setCustomProperty("labeling/fontFamily", "MS Shell Dlg 2")
+        vl.setCustomProperty("labeling/fontItalic", "false")
+        vl.setCustomProperty("labeling/fontLetterSpacing", "0")
+        vl.setCustomProperty("labeling/fontLimitPixelSize", "false")
+        vl.setCustomProperty("labeling/fontMaxPixelSize", "10000")
+        vl.setCustomProperty("labeling/fontMinPixelSize", "3")
+        vl.setCustomProperty("labeling/fontSize", "8.25")
+        vl.setCustomProperty("labeling/fontSizeInMapUnits", "false")
+        vl.setCustomProperty("labeling/fontSizeMapUnitScale", "0,0,0,0,0,0")
+        vl.setCustomProperty("labeling/fontStrikeout", "false")
+        vl.setCustomProperty("labeling/fontUnderline", "false")
+        vl.setCustomProperty("labeling/fontWeight", "50")
+        vl.setCustomProperty("labeling/fontWordSpacing", "0")
+        vl.setCustomProperty("labeling/formatNumbers", "false")
+        vl.setCustomProperty("labeling/isExpression", "false")
+        vl.setCustomProperty("labeling/labelOffsetInMapUnits", "false")
+        vl.setCustomProperty("labeling/labelOffsetMapUnitScale", "0,0,0,0,0,0")
+        vl.setCustomProperty("labeling/labelPerPart", "false")
+        vl.setCustomProperty("labeling/leftDirectionSymbol", "&lt;")
+        vl.setCustomProperty("labeling/limitNumLabels", "false")
+        vl.setCustomProperty("labeling/maxCurvedCharAngleIn", "25")
+        vl.setCustomProperty("labeling/maxCurvedCharAngleOut", "-25")
+        vl.setCustomProperty("labeling/maxNumLabels", "2000")
+        vl.setCustomProperty("labeling/mergeLines", "false")
+        vl.setCustomProperty("labeling/minFeatureSize", "0")
+        vl.setCustomProperty("labeling/multilineAlign", "3")
+        vl.setCustomProperty("labeling/multilineHeight", "1")
+        vl.setCustomProperty("labeling/namedStyle", "Normal")
+        vl.setCustomProperty("labeling/obstacle", "true")
+        vl.setCustomProperty("labeling/obstacleFactor", "1")
+        vl.setCustomProperty("labeling/obstacleType", "0")
+        vl.setCustomProperty("labeling/offsetType", "0")
+        vl.setCustomProperty("labeling/placeDirectionSymbol", "0")
+        vl.setCustomProperty("labeling/placement", "1")
+        vl.setCustomProperty("labeling/placementFlags", "10")
+        vl.setCustomProperty("labeling/plussign", "false")
+        vl.setCustomProperty("labeling/predefinedPositionOrder", "TR,TL,BR,BL,R,L,TSR,BSR")
+        vl.setCustomProperty("labeling/preserveRotation", "true")
+        vl.setCustomProperty("labeling/previewBkgrdColor", "#ffffff")
+        vl.setCustomProperty("labeling/priority", "5")
+        vl.setCustomProperty("labeling/quadOffset", "4")
+        vl.setCustomProperty("labeling/repeatDistance", "0")
+        vl.setCustomProperty("labeling/repeatDistanceMapUnitScale", "0,0,0,0,0,0")
+        vl.setCustomProperty("labeling/repeatDistanceUnit", "1")
+        vl.setCustomProperty("labeling/reverseDirectionSymbol", "false")
+        vl.setCustomProperty("labeling/rightDirectionSymbol", ">")
+        vl.setCustomProperty("labeling/scaleMax", "10000000")
+        vl.setCustomProperty("labeling/scaleMin", "1")
+        vl.setCustomProperty("labeling/scaleVisibility", "false")
+        vl.setCustomProperty("labeling/shadowBlendMode", "6")
+        vl.setCustomProperty("labeling/shadowColorB", "0")
+        vl.setCustomProperty("labeling/shadowColorG", "0")
+        vl.setCustomProperty("labeling/shadowColorR", "0")
+        vl.setCustomProperty("labeling/shadowDraw", "false")
+        vl.setCustomProperty("labeling/shadowOffsetAngle", "135")
+        vl.setCustomProperty("labeling/shadowOffsetDist", "1")
+        vl.setCustomProperty("labeling/shadowOffsetGlobal", "true")
+        vl.setCustomProperty("labeling/shadowOffsetMapUnitScale", "0,0,0,0,0,0")
+        vl.setCustomProperty("labeling/shadowOffsetUnits", "1")
+        vl.setCustomProperty("labeling/shadowRadius", "1.5")
+        vl.setCustomProperty("labeling/shadowRadiusAlphaOnly", "false")
+        vl.setCustomProperty("labeling/shadowRadiusMapUnitScale", "0,0,0,0,0,0")
+        vl.setCustomProperty("labeling/shadowRadiusUnits", "1")
+        vl.setCustomProperty("labeling/shadowScale", "100")
+        vl.setCustomProperty("labeling/shadowTransparency", "30")
+        vl.setCustomProperty("labeling/shadowUnder", "0")
+        vl.setCustomProperty("labeling/shapeBlendMode", "0")
+        vl.setCustomProperty("labeling/shapeBorderColorA", "255")
+        vl.setCustomProperty("labeling/shapeBorderColorB", "0")
+        vl.setCustomProperty("labeling/shapeBorderColorG", "212")
+        vl.setCustomProperty("labeling/shapeBorderColorR", "143")
+        vl.setCustomProperty("labeling/shapeBorderWidth", "1")
+        vl.setCustomProperty("labeling/shapeBorderWidthMapUnitScale", "0,0,0,0,0,0")
+        vl.setCustomProperty("labeling/shapeBorderWidthUnits", "1")
+        vl.setCustomProperty("labeling/shapeDraw", "true")
+        vl.setCustomProperty("labeling/shapeFillColorA", "255")
+        vl.setCustomProperty("labeling/shapeFillColorB", "255")
+        vl.setCustomProperty("labeling/shapeFillColorG", "255")
+        vl.setCustomProperty("labeling/shapeFillColorR", "255")
+        vl.setCustomProperty("labeling/shapeJoinStyle", "64")
+        vl.setCustomProperty("labeling/shapeOffsetMapUnitScale", "0,0,0,0,0,0")
+        vl.setCustomProperty("labeling/shapeOffsetUnits", "1")
+        vl.setCustomProperty("labeling/shapeOffsetX", "0")
+        vl.setCustomProperty("labeling/shapeOffsetY", "0")
+        vl.setCustomProperty("labeling/shapeRadiiMapUnitScale", "0,0,0,0,0,0")
+        vl.setCustomProperty("labeling/shapeRadiiUnits", "1")
+        vl.setCustomProperty("labeling/shapeRadiiX", "0")
+        vl.setCustomProperty("labeling/shapeRadiiY", "0")
+        vl.setCustomProperty("labeling/shapeRotation", "0")
+        vl.setCustomProperty("labeling/shapeRotationType", "0")
+        vl.setCustomProperty("labeling/shapeSVGFile", "")
+        vl.setCustomProperty("labeling/shapeSizeMapUnitScale", "0,0,0,0,0,0")
+        vl.setCustomProperty("labeling/shapeSizeType", "0")
+        vl.setCustomProperty("labeling/shapeSizeUnits", "1")
+        vl.setCustomProperty("labeling/shapeSizeX", "0")
+        vl.setCustomProperty("labeling/shapeSizeY", "0")
+        vl.setCustomProperty("labeling/shapeTransparency", "0")
+        vl.setCustomProperty("labeling/shapeType", "2")
+        vl.setCustomProperty("labeling/substitutions", "&lt;substitutions)")
+        vl.setCustomProperty("labeling/textColorA", "255")
+        vl.setCustomProperty("labeling/textColorB", "0")
+        vl.setCustomProperty("labeling/textColorG", "0")
+        vl.setCustomProperty("labeling/textColorR", "0")
+        vl.setCustomProperty("labeling/textTransp", "0")
+        vl.setCustomProperty("labeling/upsidedownLabels", "0")
+        vl.setCustomProperty("labeling/useSubstitutions", "false")
+        vl.setCustomProperty("labeling/wrapChar", "")
+        vl.setCustomProperty("labeling/xOffset", "0")
+        vl.setCustomProperty("labeling/yOffset", "-7")
+        vl.setCustomProperty("labeling/zIndex", "10")
+        vl.commitChanges()
+        QgsMapLayerRegistry.instance().addMapLayer(vl)
+
+
+    def CargaCapa(self, nombre, crs, label):
+        sql = ""
+        uri = QgsDataSourceURI()
+        uri.setConnection("9.56.3.159", "5432", "oliva", "postgres", "123456", QgsDataSourceURI.SSLdisable)
+        uri.setDataSource("cartografia", nombre, "geom", sql, "gid")
+        uri.setSrid(crs)
+        vlayer = QgsVectorLayer(uri.uri(), nombre, "postgres")
+        vlayer.setLayerName(label)
+        if label == "Construcciones":
+
+            styleText = vlayer.getStyleFromDatabase("10", "constru_pnoa")
+            vlayer.applyNamedStyle(styleText)
+        QgsMapLayerRegistry.instance().addMapLayer(vlayer)
+        self.canvas.setExtent(vlayer.extent())
+        self.jar.append(QgsMapCanvasLayer(vlayer))
+        print label, vlayer.isValid(), vlayer.crs().description(), vlayer.listStylesInDatabase()
+
+    def PNOA(self):
+        url = "contextualWMSLegend=0&crs=EPSG:25830&dpiMode=7&featureCount=10&format=image/png&layers=OI.OrthoimageCoverage&password=admin&styles=default&url=http://www.ign.es/wms-inspire/pnoa-ma&username=admin"
+        layer = QgsRasterLayer(url, "PNOA", "wms")
+        #url = "D:/a.xml"
+        #layer = QgsRasterLayer(url, "PNOA", "gdal")
+        layer.setLayerName("PNOA")
+        QgsMapLayerRegistry.instance().addMapLayer(layer)
+        self.jar.append(QgsMapCanvasLayer(layer))
+        print "PNOA", layer.isValid(), layer.crs().authid()
+
+    def actTitulo(self):
+        #
+        self.escala.setText("Escala: 1:" + str(int(self.canvas.scale())))
+
+
+    def showSeleccion(self):
+        if self.c_seleccion.isChecked():
+            self.g_seleccion.show()
+            print self.sel_rect.toolTip()
+        else:
+            self.g_seleccion.hide()
+
+    def showCriterios(self):
+        if self.c_criterios.isChecked():
+            self.criterios = pool_Window(self.canvas)
+            cargacriterios(self.criterios)
+            self.criterios.show()
+            self.visibleCriterios = True
+        else:
+            self.criterios.close()
+            self.visibleCriterios = False
+
+    def showBusquedas(self):
+        if self.c_Busquedas.isChecked():
+            self.g_busquedas.show()
+        else:
+            self.g_busquedas.hide()
+
+    def showCapas(self):
+        if self.c_capas.isChecked():
+            self.g_capas.show()
+        else:
+            self.g_capas.hide()
+
+    def showResultados(self):
+        if self.c_resultados.isChecked():
+            self.g_resultados.show()
+        else:
+            self.g_resultados.hide()
+
+    def visualizaCapa(self):
+        capas = []
+        capas.append(QgsMapCanvasLayer(QgsMapLayerRegistry.instance().mapLayersByName("temp")[0]))
+        pnoa = False
+        for jar in range(self.listCapas.count()):
+            if self.listCapas.itemWidget(self.listCapas.item(jar)).check.isChecked() == True:
+                c = self.listCapas.itemWidget(self.listCapas.item(jar)).check.text()
+                if c == "PNOA":
+                    pnoa = True
+
+                try:
+                    capas.append(QgsMapCanvasLayer(QgsMapLayerRegistry.instance().mapLayersByName(c)[0]))
+                except:
+                    Mensaje("Capa " + c + "no figura en QgsMapLayerRegistry")
+
+        self.canvas.setLayerSet(capas)
+        if pnoa:
+            layer = QgsMapLayerRegistry.instance().mapLayersByName("Construcciones")[0]
+            style = layer.getStyleFromDatabase("10", "constru_pnoa")
+            layer.applyNamedStyle(style)
+        else:
+            layer = QgsMapLayerRegistry.instance().mapLayersByName("Construcciones")[0]
+            style = layer.getStyleFromDatabase("5", "constru")
+            layer.applyNamedStyle(style)
+
+        self.canvas.refresh()
+
+    def resizeEvent(self, event):
+        self.panel_resultados.reubica(self.canvas)
+        if self.visibleCriterios:
+            self.criterios.reubica(self.canvas)
+
+
+
+def getRefs(canvas, g, form):
+    p = loading("Representando parcelas seleccionadas", canvas)
+    p.show()
+    conn = psycopg2.connect("dbname='oliva' user='postgres' password='123456' host='9.56.3.159' port='5432'")
+    cur = conn.cursor()
+    geometria = g.exportToWkt()
+    sql = """SELECT ST_AsText(p.geom), p.refcat FROM cartografia.parcela p \
+            WHERE ST_Within(ST_Centroid(p.geom), ST_GeomFromText(%(geom)s, 25830));"""
+    cur.execute(sql, {"geom": geometria})
+    rows = cur.fetchall()
+    canvas.freeze()
+    geometrias = []
+    fincas = []
+    for row in rows:
+        geometrias.append(row[0])
+        fincas.append(row[1])
+    form.panel_resultados.finca.setText(str(cur.rowcount) + " fincas seleccionadas.")
+    Resaltador(canvas, geometrias, form)
+    muestraFincas(fincas, form)
+    canvas.freeze(False)
+    canvas.refresh()
+    p.close()
+
+
+def Resaltador(canvas, geometrias, form):
+    # rb = QgsRubberBand(canvas, False)
+    # rb.reset(QGis.Polygon)
+    # rb.setBorderColor(QColor(143, 212, 0, 255))
+    # rb.setFillColor(QColor(143, 212, 0, 200))
+    # rb.setWidth(1)
+    # rb.hide()
+    rb = form.rubberBand
+    for geometria in geometrias:
+        rb.addGeometry(QgsGeometry.fromWkt(geometria), None)
+        QApplication.processEvents()
+    rb.show()
+
+def getReferencia(canvas, g, form):
+    conn = psycopg2.connect("dbname='oliva' user='postgres' password='123456' host='9.56.3.159' port='5432'")
+    cur = conn.cursor()
+    geometria = g.exportToWkt()
+    sql = """SELECT refcat, ST_AsText(geom) FROM cartografia.parcela p WHERE ST_Within(ST_GeomFromText(%(geom)s, 25830), geom);"""
+    cur.execute(sql, {"geom": geometria})
+    rows = cur.fetchall()
+    geometrias = []
+    fincas = []
+    for row in rows:
+        geometrias.append(row[1])
+        fincas.append(row[0])
+    Resaltador(canvas, geometrias, form)
+    muestraFincas(fincas, form)
+    form.panel_resultados.finca.setText("Finca: " + row[0])
+
+def limpiar(canvas, form):
+    for item in canvas.scene().items():
+        if issubclass(type(item), QgsRubberBand):
+            print item
+            item.reset(QGis.Polygon)
+    form.panel_resultados.finca.setText(u"Sin selección")
+    #form.fincas.clear()
+    #form.direccion.setText("")
+    #form.resultados_ibi.clear()
+    #form.resultados_vados.clear()
+    #form.resultados_basuras.clear()
+    #form.resultados_agua.clear()
+    #form.resultados_expedientes.clear()
+
+
+def muestraFincas(fincas, form):
+    form.fincas.clear()
+    for finca in fincas:
+        form.fincas.addItem(finca)
+
+def datosFin(refcat, form):
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
+    conn = psycopg2.connect("dbname='oliva' user='postgres' password='123456' host='9.56.3.159' port='5432'")
+    cur = conn.cursor()
+    sql = """SELECT CONCAT(siglavia, ' ', nombrevia, ' ', numeropolicia) AS direccion, numerocargo, CONCAT(dni, letradni) AS dni, nombre, ref_completa FROM public.fin WHERE refcat=%(ref)s;"""
+    cur.execute(sql, {"ref": refcat})
+    rows = cur.fetchall()
+    form.resultados_ibi.clear()
+    direccion = ""
+    for row in rows:
+        direccion = row[0]
+        c = ValorWidget(row[1], row[2], row[3], row[4], form, "IBI")
+        qlwi = QListWidgetItem(form.resultados_ibi)
+        qlwi.setSizeHint(QSize(250, 65))
+        form.resultados_ibi.addItem(qlwi)
+        form.resultados_ibi.setItemWidget(qlwi, c)
+    form.direccion.setText(direccion)
+
+
+
+
+def datosVados(refcat, form):
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
+    conn = psycopg2.connect("dbname='oliva' user='postgres' password='123456' host='9.56.3.159' port='5432'")
+    cur = conn.cursor()
+    sql = """SELECT n_fijo, desc_ot, importe_sub_1, ref_completa FROM public.vados WHERE refcat=%(ref)s;"""
+    cur.execute(sql, {"ref": refcat})
+    rows = cur.fetchall()
+    for row in rows:
+        c = ValorWidget(row[0], str(row[2])+u" €", row[1], row[3], form, "VADOS")
+        c.dato1.setText("Placa:")
+        c.dato2.setText("Importe:")
+        c.dato3.setText("OT:")
+        c.titulo.setText("Datos del vado")
+        c.l_info_1.setText("Tarifa:")
+        c.l_info_2.setText("Metros:")
+        c.l_info_3.setText("S.P:")
+
+
+        qlwi = QListWidgetItem(form.resultados_vados)
+        qlwi.setSizeHint(QSize(250, 65))
+        form.resultados_vados.addItem(qlwi)
+        form.resultados_vados.setItemWidget(qlwi, c)
+
+def datosBasura(refcat, form):
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
+    conn = psycopg2.connect("dbname='oliva' user='postgres' password='123456' host='9.56.3.159' port='5432'")
+    cur = conn.cursor()
+    sql = """SELECT n_fijo, desc_ot, nif_sp_ot, ref_completa FROM public.basuras WHERE refcat=%(ref)s;"""
+    cur.execute(sql, {"ref": refcat})
+    rows = cur.fetchall()
+    for row in rows:
+        c = ValorWidget(row[0], str(row[2]), row[1], row[3], form, "BASURA")
+        c.dato1.setText(u"Nº Fijo:")
+        c.dato2.setText("NIF:")
+        c.dato3.setText("OT:")
+        c.titulo.setText("Recogida de residuos")
+        c.l_info_1.setText("Tarifa:")
+        c.l_info_2.setText("Importe:")
+        c.l_info_3.setText("S.P:")
+
+
+        qlwi = QListWidgetItem(form.resultados_basuras)
+        qlwi.setSizeHint(QSize(250, 65))
+        form.resultados_basuras.addItem(qlwi)
+        form.resultados_basuras.setItemWidget(qlwi, c)
+
+def datosAguas(refcat, form):
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
+    conn = psycopg2.connect("dbname='oliva' user='postgres' password='123456' host='9.56.3.159' port='5432'")
+    cur = conn.cursor()
+    sql = """SELECT numfijo, nombre, nif, ref_completa FROM public.aguas WHERE refcat=%(ref)s;"""
+    cur.execute(sql, {"ref": refcat})
+    rows = cur.fetchall()
+    for row in rows:
+        c = ValorWidget(row[0], str(row[2]), row[1], row[3], form, "AGUAS")
+        c.dato1.setText(u"Nº Fijo:")
+        c.dato2.setText("NIF:")
+        c.dato3.setText("S.P:")
+        c.titulo.setText("Aguas")
+        c.l_info_1.setText("L. Anterior:")
+        c.l_info_2.setText("L.Actual:")
+        c.l_info_3.setText("Importe:")
+
+
+        qlwi = QListWidgetItem(form.resultados_agua)
+        qlwi.setSizeHint(QSize(250, 65))
+        form.resultados_agua.addItem(qlwi)
+        form.resultados_agua.setItemWidget(qlwi, c)
+
+def datosExpedientes(refcat, form):
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
+    conn = psycopg2.connect("dbname='oliva' user='postgres' password='123456' host='9.56.3.159' port='5432'")
+    cur = conn.cursor()
+    sql = """SELECT numero_rege, CONCAT(cod_tdoc, '-', cod_sdoc) AS tipo, fecha_rege, ref_completa FROM public.expedientes WHERE refcat=%(ref)s;"""
+    cur.execute(sql, {"ref": refcat})
+    rows = cur.fetchall()
+    for row in rows:
+        c = ValorWidget(str(row[2].date().strftime("%d/%m/%Y")), row[1], row[0], row[3], form, "EXPEDIENTES")
+        c.dato1.setText("Registro:")
+        c.dato2.setText("Tipo:")
+        c.dato3.setText(u"Nº Exp:")
+        c.titulo.setText("Expediente")
+        #c.l_info_1.setText("L. Anterior:")
+        #c.l_info_2.setText("L.Actual:")
+        #c.l_info_3.setText("Importe:")
+        QWidget().setLayout(c.info_ot.layout())
+        c.nLayout = QVBoxLayout()
+        c.nDato = QTextEdit()
+        c.nDato.setMaximumWidth(235)
+        c.nLayout.addWidget(c.nDato)
+        c.info_ot.setLayout(c.nLayout)
+
+
+
+
+        qlwi = QListWidgetItem(form.resultados_expedientes)
+        qlwi.setSizeHint(QSize(250, 65))
+        form.resultados_expedientes.addItem(qlwi)
+        form.resultados_expedientes.setItemWidget(qlwi, c)
+
+def datosPlusvalias(refcat, form):
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
+    conn = psycopg2.connect("dbname='oliva' user='postgres' password='123456' host='9.56.3.159' port='5432'")
+    cur = conn.cursor()
+    sql = """SELECT numero_cargo, obj_trib_valo, importe_valo, id_valor FROM public.plusvalia WHERE refcat=%(ref)s;"""
+    cur.execute(sql, {"ref": refcat})
+    rows = cur.fetchall()
+    for row in rows:
+        c = ValorWidget(row[0], str(row[2]/100) + u" €", row[1], row[3], form, "PLUSVALIAS")
+        c.dato1.setText("Cargo:")
+        c.dato2.setText("Importe:")
+        c.dato3.setText("OT:")
+        c.titulo.setText("Detalle del valor")
+        c.l_info_1.setText("NIF:")
+        c.l_info_2.setText("Nombre:")
+        c.l_info_3.setText("Estado:")
+        qlwi = QListWidgetItem(form.resultados_plusvalias)
+        qlwi.setSizeHint(QSize(250, 65))
+        form.resultados_plusvalias.addItem(qlwi)
+        form.resultados_plusvalias.setItemWidget(qlwi, c)
+
+def datosIcio(refcat, form):
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
+    conn = psycopg2.connect("dbname='oliva' user='postgres' password='123456' host='9.56.3.159' port='5432'")
+    cur = conn.cursor()
+    sql = """SELECT ejercicio, direccion, nif_perg, id_valor FROM public.icio WHERE refcat=%(ref)s AND \
+    descr_conc='IMPUESTO SOBRE CONST.INST.OBRA';"""
+    cur.execute(sql, {"ref": refcat})
+    rows = cur.fetchall()
+    for row in rows:
+        c = ValorWidget(row[0], row[2], row[1], row[3], form, "ICIO")
+        c.dato1.setText("Ejercicio:")
+        c.dato2.setText("NIF:")
+        c.dato3.setText("OT:")
+        c.titulo.setText("Detalle del valor")
+        c.l_info_1.setText("Importe:")
+        c.l_info_2.setText("S.P:")
+        c.l_info_3.setText("Estado:")
+        qlwi = QListWidgetItem(form.resultados_icio)
+        qlwi.setSizeHint(QSize(250, 65))
+        form.resultados_icio.addItem(qlwi)
+        form.resultados_icio.setItemWidget(qlwi, c)
+
+def getDatosIbi(obj):
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
+    conn = psycopg2.connect("dbname='oliva' user='postgres' password='123456' host='9.56.3.159' port='5432'")
+    cur = conn.cursor()
+    sql = """SELECT estado, importe, nombre FROM public.datos WHERE ref_completa=%(ref)s;"""
+    cur.execute(sql, {"ref": obj.getRefCompleta()})
+    rows = cur.fetchall()
+    for row in rows:
+        obj.e_info_1.setText(str(row[1]/100)+u" €")
+        obj.e_info_2.setText(row[0])
+        obj.l_info_3.setText("S.P:")
+        obj.e_info_3.setText(row[2])
+
+
+def getDatosVados(obj):
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
+    conn = psycopg2.connect("dbname='oliva' user='postgres' password='123456' host='9.56.3.159' port='5432'")
+    cur = conn.cursor()
+    sql = """SELECT nombre_sp, descripcion_tarifa_sub_1, n_unidades_sub_1 FROM public.vados WHERE ref_completa=%(ref)s;"""
+    cur.execute(sql, {"ref": obj.getRefCompleta()})
+    rows = cur.fetchall()
+    for row in rows:
+        obj.e_info_1.setText(row[1])
+        obj.e_info_2.setText(str(row[2])+ " m.")
+        obj.e_info_3.setText(row[0])
+
+def getDatosBasura(obj):
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
+    conn = psycopg2.connect("dbname='oliva' user='postgres' password='123456' host='9.56.3.159' port='5432'")
+    cur = conn.cursor()
+    sql = """SELECT nombre_sp, descripcion_tarifa_sub_1, importe_conc FROM public.basuras WHERE ref_completa=%(ref)s;"""
+    cur.execute(sql, {"ref": obj.getRefCompleta()})
+    rows = cur.fetchall()
+    for row in rows:
+        obj.e_info_1.setText(row[1])
+        obj.e_info_2.setText(str(row[2]) + u" €")
+        obj.e_info_3.setText(row[0])
+
+def getDatosAguas(obj):
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
+    conn = psycopg2.connect("dbname='oliva' user='postgres' password='123456' host='9.56.3.159' port='5432'")
+    cur = conn.cursor()
+    sql = """SELECT lectant, lectact, importe FROM public.aguas WHERE ref_completa=%(ref)s;"""
+    cur.execute(sql, {"ref": obj.getRefCompleta()})
+    rows = cur.fetchall()
+    for row in rows:
+        obj.e_info_1.setText(str(row[0]))
+        obj.e_info_2.setText(str(row[1]))
+        obj.e_info_3.setText(str(row[2]/100)+ u" €")
+
+def getDatosExpediente(obj):
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
+    conn = psycopg2.connect("dbname='oliva' user='postgres' password='123456' host='9.56.3.159' port='5432'")
+    cur = conn.cursor()
+    sql = """SELECT extracto_rege FROM public.expedientes WHERE ref_completa=%(ref)s;"""
+    cur.execute(sql, {"ref": obj.getRefCompleta()})
+    rows = cur.fetchall()
+    for row in rows:
+        obj.nDato.setText(row[0])
+
+def getDatosPlusvalia(obj):
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
+    conn = psycopg2.connect("dbname='oliva' user='postgres' password='123456' host='9.56.3.159' port='5432'")
+    cur = conn.cursor()
+    sql = """SELECT nif_perg, nombre_perg, cod_descrp_trad FROM public.plusvalia WHERE id_valor=%(ref)s;"""
+    cur.execute(sql, {"ref": obj.getRefCompleta()})
+    rows = cur.fetchall()
+    for row in rows:
+        obj.e_info_1.setText(str(row[0]))
+        obj.e_info_2.setText(str(row[1]))
+        obj.e_info_3.setText(str(row[2]))
+
+def getDatosIcio(obj):
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
+    psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
+    conn = psycopg2.connect("dbname='oliva' user='postgres' password='123456' host='9.56.3.159' port='5432'")
+    cur = conn.cursor()
+    sql = """SELECT importe, nombre_perg, estado FROM public.icio WHERE id_valor=%(ref)s;"""
+    cur.execute(sql, {"ref": obj.getRefCompleta()})
+    rows = cur.fetchall()
+    for row in rows:
+        obj.e_info_1.setText(str(row[0])+u" €")
+        obj.e_info_2.setText(str(row[1]))
+        obj.e_info_3.setText(str(row[2]))
+
+def getCentroid(refcat, form):
+    if refcat != "":
+        borraTemp()
+        psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
+        psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
+        conn = psycopg2.connect("dbname='oliva' user='postgres' password='123456' host='9.56.3.159' port='5432'")
+        cur = conn.cursor()
+        sql = """SELECT ST_AsText(p.geom) AS geom FROM cartografia.parcela p WHERE refcat=%(ref)s;"""
+        cur.execute(sql, {"ref": refcat})
+        rows = cur.fetchall()
+        form.rb.reset()
+        print "asde", refcat
+        for row in rows:
+            geom = row[0]
+            form.rb.addGeometry(QgsGeometry.fromWkt(geom), None)
+
+def addTempPoint(geom, info):
+    layer = QgsMapLayerRegistry.instance().mapLayersByName("temp")[0]
+    layer.startEditing()
+    pr = layer.dataProvider()
+    campos = layer.fields()
+    fet = QgsFeature()
+    fet.setGeometry(QgsGeometry.fromWkt(geom))
+    fet.setFields(campos)
+    fet['info'] = info
+    pr.addFeatures([fet])
+    layer.updateExtents()
+    layer.commitChanges()
+
+def borraTemp():
+    layer = QgsMapLayerRegistry.instance().mapLayersByName("temp")[0]
+    layer.startEditing()
+    for feature in layer.getFeatures():
+        layer.deleteFeature(feature.id())
+    layer.commitChanges()
+
+
+
+
+
+
+
+
+@pyqtSlot()
+def resizeResultado(self, form, contenedor):
+    if contenedor == "IBI":
+        for i in range(0, form.resultados_ibi.count(), 1):
+            c = form.resultados_ibi.item(i)
+            if form.resultados_ibi.itemWidget(c) == self.sender():
+                print c
+                if self.sender().info_ot.isVisible():
+                    self.sender().info_ot.hide()
+                    c.setSizeHint(self.sender().sizeHint())
+
+                else:
+                    self.sender().info_ot.show()
+                    getDatosIbi(self.sender())
+                    c.setSizeHint(self.sender().sizeHint())
+    elif contenedor == "VADOS":
+        for i in range(0, form.resultados_vados.count(), 1):
+            c = form.resultados_vados.item(i)
+            if form.resultados_vados.itemWidget(c) == self.sender():
+                print c
+                if self.sender().info_ot.isVisible():
+                    self.sender().info_ot.hide()
+                    c.setSizeHint(self.sender().sizeHint())
+
+                else:
+                    self.sender().info_ot.show()
+                    getDatosVados(self.sender())
+                    c.setSizeHint(self.sender().sizeHint())
+    elif contenedor == "BASURA":
+        for i in range(0, form.resultados_basuras.count(), 1):
+            c = form.resultados_basuras.item(i)
+            if form.resultados_basuras.itemWidget(c) == self.sender():
+                print c
+                if self.sender().info_ot.isVisible():
+                    self.sender().info_ot.hide()
+                    c.setSizeHint(self.sender().sizeHint())
+
+                else:
+                    self.sender().info_ot.show()
+                    getDatosBasura(self.sender())
+                    c.setSizeHint(self.sender().sizeHint())
+    elif contenedor == "AGUAS":
+        for i in range(0, form.resultados_agua.count(), 1):
+            c = form.resultados_agua.item(i)
+            if form.resultados_agua.itemWidget(c) == self.sender():
+                print c
+                if self.sender().info_ot.isVisible():
+                    self.sender().info_ot.hide()
+                    c.setSizeHint(self.sender().sizeHint())
+
+                else:
+                    self.sender().info_ot.show()
+                    getDatosAguas(self.sender())
+                    c.setSizeHint(self.sender().sizeHint())
+
+    elif contenedor == "EXPEDIENTES":
+        for i in range(0, form.resultados_expedientes.count(), 1):
+            c = form.resultados_expedientes.item(i)
+            if form.resultados_expedientes.itemWidget(c) == self.sender():
+                print c
+                if self.sender().info_ot.isVisible():
+                    self.sender().info_ot.hide()
+                    c.setSizeHint(self.sender().sizeHint())
+
+                else:
+                    self.sender().info_ot.show()
+                    getDatosExpediente(self.sender())
+                    c.setSizeHint(self.sender().sizeHint())
+
+    elif contenedor == "PLUSVALIAS":
+        for i in range(0, form.resultados_plusvalias.count(), 1):
+            c = form.resultados_plusvalias.item(i)
+            if form.resultados_plusvalias.itemWidget(c) == self.sender():
+                print c
+                if self.sender().info_ot.isVisible():
+                    self.sender().info_ot.hide()
+                    c.setSizeHint(self.sender().sizeHint())
+
+                else:
+                    self.sender().info_ot.show()
+                    getDatosPlusvalia(self.sender())
+                    c.setSizeHint(self.sender().sizeHint())
+
+    elif contenedor == "ICIO":
+        for i in range(0, form.resultados_icio.count(), 1):
+            c = form.resultados_icio.item(i)
+            if form.resultados_icio.itemWidget(c) == self.sender():
+                print c
+                if self.sender().info_ot.isVisible():
+                    self.sender().info_ot.hide()
+                    c.setSizeHint(self.sender().sizeHint())
+
+                else:
+                    self.sender().info_ot.show()
+                    getDatosIcio(self.sender())
+                    c.setSizeHint(self.sender().sizeHint())
+
+def getInfo(refcat, form):
+    print getCentroid(refcat, form)
+    datosFin(refcat, form)
+    datosVados(refcat, form)
+    datosBasura(refcat, form)
+    datosAguas(refcat, form)
+    datosExpedientes(refcat, form)
+    datosPlusvalias(refcat, form)
+    datosIcio(refcat, form)
+
+def montaSQL(form):
+    for i in range(0, form.lBusquedas.count()):
+        crt = form.lBusquedas.itemWidget(form.lBusquedas.item(i))
+        if type(crt.criterio) == QComboBox:
+            print "Si"
+            criterio = crt.campo + "='" + crt.criterio.currentText() + "'"
+            print criterio
+        else:
+            print "No"
+            criterio = crt.campo + "='" + crt.criterio.text() + "'"
+        sql = """SELECT \
+                 ST_AsText(ST_Centroid((p.geom))) AS geom, \
+                 SUM(d.importe_conc::real) as importe \
+                 FROM cartografia.parcela p INNER JOIN """ + crt.tabla + """ d \
+                 USING(refcat) \
+                 WHERE """ + criterio + """GROUP BY p.geom;"""
+    Consulta(form, sql)
+
+def Consulta(form, sql):
+    conn = psycopg2.connect("dbname='oliva' user='postgres' password='123456' host='9.56.3.159' port='5432'")
+    cur = conn.cursor()
+    # sql = """SELECT \
+    #     ST_AsText(ST_Centroid((p.geom))) AS geom, \
+    #     d.numero_rege \
+    #     FROM cartografia.parcela p INNER JOIN public.expedientes d \
+    #     USING(refcat) \
+    #     WHERE d.cod_tdoc=1 GROUP BY d.numero_rege, p.geom;"""
+
+    cur.execute(sql)
+    rows = cur.fetchall()
+    borraTemp()
+    for row in rows:
+        #print row[1], row[0]
+        addTempPoint(row[0], str(row[1]))
+    form.canvas.refresh()
+
+def cargacriterios(widget):
+    listacriterios = [
+        ("public.datos", "refcat", ":/icons/25694.png", True, 0, "REFERENCIA CATASTRAL", "ibi", []),
+        ("public.datos", "estado", ":/icons/25694.png", False, 1, "ESTADO", "ibi", ["Voluntaria", "Ejecutiva", "Fraccionado", "Pendiente"]),
+        ("public.datos", "nif", ":/icons/25694.png", False, 0, "NIF", "ibi", []),
+        ("public.datos", "nombre", ":/icons/25694.png", False, 0, "TITULAR", "ibi", []),
+        ("public.vados", "n_fijo", ":/icons/vados.png", True, 0, "PLACA", "vados", []),
+        ("public.vados", "nif_sp_ot", ":/icons/vados.png", False, 0, "NIF", "vados", []),
+        ("public.vados", "descripcion_tarifa_sub_1", ":/icons/vados.png", False, 0, "TARIFA", "vados", ["RESTO CIUDAD HASTA 5 PLAZAS",
+                                                            "POLIGONOS INDUSTRIALES HASTA 5 PLAZAS",
+                                                            "PLAYAS HASTA 5 PLAZAS",
+                                                            "NUCLEO ANTIGUO",
+                                                            "POLIGONOS INDUSTRIALES MAS DE 6 PLAZAS",
+                                                            "RESTA DE LA CIUTAT",
+                                                            "RESTO CIUDAD MAS DE 6 PLAZAS",
+                                                            "PLAYAS MAS DE 6 PLAZAS"]),
+        ("public.basuras", "nif_sp_ot", ":/icons/basura.png", False, 0, "NIF", "basura", []),
+        ("public.basuras", "descripcion_tarifa_sub_1", ":/icons/basura.png", False, 1, "TARIFA", "basura", ["1.VIVIENDAS",
+                                                              "2.DESPACHOS, CONSULTAS MDICAS, ACTIV PROFESIONALES.",
+                                                              "3.CLINICAS, FARMACIAS Y DESPACHOS (ARQUIT E INGEN)",
+                                                              "4.NOTARIAS, REGISTRO PROPIEDAD",
+                                                              "5. OFIC. ESTABLEC.Y LOCALES NO COMPRENDIDOS EN OTRO EPIGR.",
+                                                              "6. COMERCIO",
+                                                              "8. BARES, RESTAURANTES O CAFETERIAS",
+                                                              "9. HOTELES, MOTELES Y APART DE MENOS DE 3 ESTRELLAS.",
+                                                              "10. HOTELES, MOTELES Y APART DE 3 ESTRELLAS",
+                                                              "11. HOTELES, MOTELES Y APART DE MµS DE 3 ESTRELLAS",
+                                                              "12. CAMPING",
+                                                              "16. OFICINAS DE BANCOS Y CAJAS DE AHORROS",
+                                                              "18. LOCALES ASOCIACIONES/ENTIDADES SIN µNIMO DE LUCRO",
+                                                              "17.2. GASOLINERAS SIN TIENDA",
+                                                              "17.1. GASOLINERA CON TIENDA PRODUCTOS DIVERSOS"]),
+        ("cartografia.multas", "*", ":/icons/basura.png", False, 0, "Todas", "multas", []),
+         ]
+    for tabla, campo, icono, unico, tipo, nombre, destino, valores in listacriterios:
+        if destino == "ibi":
+            j = clase_criterio(tabla, campo, icono, unico, tipo, nombre)
+            if tipo == 1:
+                j.criterio.addItems(valores)
+            qlwi = QListWidgetItem(widget.listIBI)
+            qlwi.setSizeHint(j.size())
+            widget.listIBI.addItem(qlwi)
+            widget.listIBI.setItemWidget(qlwi, j)
+        if destino == "vados":
+            j = clase_criterio(tabla, campo, icono, unico, tipo, nombre)
+            if tipo == 1:
+                j.criterio.addItems(valores)
+            qlwi = QListWidgetItem(widget.listVADOS)
+            qlwi.setSizeHint(j.size())
+            widget.listVADOS.addItem(qlwi)
+            widget.listVADOS.setItemWidget(qlwi, j)
+        if destino == "basura":
+            j = clase_criterio(tabla, campo, icono, unico, tipo, nombre)
+            if tipo == 1:
+                j.criterio.addItems(valores)
+            qlwi = QListWidgetItem(widget.listBASURA)
+            qlwi.setSizeHint(j.size())
+            widget.listBASURA.addItem(qlwi)
+            widget.listBASURA.setItemWidget(qlwi, j)
+        if destino == "multas":
+            j = clase_criterio(tabla, campo, icono, unico, tipo, nombre)
+            if tipo == 1:
+                j.criterio.addItems(valores)
+            qlwi = QListWidgetItem(widget.listMULTAS)
+            qlwi.setSizeHint(j.size())
+            widget.listMULTAS.addItem(qlwi)
+            widget.listMULTAS.setItemWidget(qlwi, j)
+
+
+def Mensaje(texto):
+    a = QMessageBox()
+    a.setText(texto)
+    a.exec_()
+
+def main(argv):
+    app = QApplication(argv)
+    form = Principal()
+    form.show()
+    form.panel_resultados.reubica(form.canvas)
+    app.exec_()
+
+
+if __name__ == '__main__':
+    main(sys.argv)
+

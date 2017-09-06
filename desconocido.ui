@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>591</width>
+    <height>60</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <item row="0" column="0">
+    <widget class="QLabel" name="fondo">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>591</width>
+       <height>60</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16677215</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QLabel#fondo {border: 2px solid rgb(143,212,0);
+border-radius: 30px;
+background-color: rgb(255,255,255);
+ }</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="scaledContents">
+      <bool>false</bool>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="margin">
+      <number>0</number>
+     </property>
+     <property name="indent">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+  </layout>
+  <widget class="QPushButton" name="icono">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>60</width>
+     <height>60</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>60</width>
+     <height>60</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>60</width>
+     <height>60</height>
+    </size>
+   </property>
+   <property name="toolTip">
+    <string>Ubicar desconocido</string>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton#icono { border: 2px solid rgb(143,212,0);
+border-radius: 30px;
+}</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset resource="rsc/ficheros.qrc">
+     <normaloff>:/icons/25694.png</normaloff>:/icons/25694.png</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>35</width>
+     <height>35</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="borra">
+   <property name="geometry">
+    <rect>
+     <x>550</x>
+     <y>15</y>
+     <width>30</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>30</width>
+     <height>30</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>30</width>
+     <height>30</height>
+    </size>
+   </property>
+   <property name="toolTip">
+    <string>Eliminar titular candidato</string>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton#borra { border: 2px solid rgb(143,212,0);
+border-radius: 15px;
+}</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset resource="rsc/ficheros.qrc">
+     <normaloff>:/icons/borrar.png</normaloff>:/icons/borrar.png</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>15</width>
+     <height>15</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="Line" name="line">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>30</y>
+     <width>490</width>
+     <height>3</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>3</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QFrame#line
+ {
+color: rgb(143,212,0);
+}</string>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Plain</enum>
+   </property>
+   <property name="lineWidth">
+    <number>2</number>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>61</x>
+     <y>6</y>
+     <width>81</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>TITULAR FIN:</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>41</y>
+     <width>71</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <weight>75</weight>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>CANDIDATO:</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="finnombre">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>6</y>
+     <width>291</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>NOMBRE</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="finnif">
+   <property name="geometry">
+    <rect>
+     <x>450</x>
+     <y>6</y>
+     <width>91</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>DNI</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="candnif">
+   <property name="geometry">
+    <rect>
+     <x>450</x>
+     <y>41</y>
+     <width>91</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>DNI</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="candnombre">
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>41</y>
+     <width>291</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>NOMBRE</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="ref">
+   <property name="geometry">
+    <rect>
+     <x>54</x>
+     <y>23</y>
+     <width>151</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QLabel {border: 2px solid rgb(143,212,0);
+border-radius: 8px;
+background: white;
+padding-left: 4px;
+ }</string>
+   </property>
+   <property name="text">
+    <string>REFCOMPLETA</string>
+   </property>
+  </widget>
+  <zorder>fondo</zorder>
+  <zorder>borra</zorder>
+  <zorder>line</zorder>
+  <zorder>label</zorder>
+  <zorder>label_2</zorder>
+  <zorder>finnombre</zorder>
+  <zorder>finnif</zorder>
+  <zorder>candnif</zorder>
+  <zorder>candnombre</zorder>
+  <zorder>ref</zorder>
+  <zorder>icono</zorder>
+ </widget>
+ <resources>
+  <include location="rsc/ficheros.qrc"/>
+ </resources>
+ <connections/>
+</ui>

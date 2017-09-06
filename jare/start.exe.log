@@ -1,0 +1,38 @@
+Traceback (most recent call last):
+  File "start.py", line 6, in <module>
+  File "qgis\utils.pyc", line 21, in <module>
+  File "future\standard_library\__init__.pyc", line 457, in install_aliases
+ImportError: No module named UserList
+Traceback (most recent call last):
+  File "start.py", line 502, in canvasReleaseEvent
+  File "start.py", line 1101, in getRefs
+psycopg2.InternalError: parse error - invalid geometry
+HINT:  "Polygon ()" <-- parse error at position 11 within geometry
+
+Traceback (most recent call last):
+  File "start.py", line 502, in canvasReleaseEvent
+  File "start.py", line 1101, in getRefs
+psycopg2.InternalError: parse error - invalid geometry
+HINT:  "Polygon ()" <-- parse error at position 11 within geometry
+
+Traceback (most recent call last):
+  File "start.py", line 502, in canvasReleaseEvent
+  File "start.py", line 1101, in getRefs
+psycopg2.InternalError: parse error - invalid geometry
+HINT:  "Polygon ()" <-- parse error at position 11 within geometry
+
+Traceback (most recent call last):
+  File "start.py", line 446, in canvasPressEvent
+NameError: global name 'form' is not defined
+Traceback (most recent call last):
+  File "start.py", line 426, in canvasPressEvent
+  File "start.py", line 1144, in getReferencia
+UnboundLocalError: local variable 'row' referenced before assignment
+Traceback (most recent call last):
+  File "start.py", line 426, in canvasPressEvent
+  File "start.py", line 1144, in getReferencia
+UnboundLocalError: local variable 'row' referenced before assignment
+Traceback (most recent call last):
+  File "start.py", line 767, in <lambda>
+  File "start.py", line 1646, in montaSQL
+UnboundLocalError: local variable 'sql' referenced before assignment

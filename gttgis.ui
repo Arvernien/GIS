@@ -1,0 +1,644 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1012</width>
+    <height>762</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>gttSIG</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="rsc/ficheros.qrc">
+    <normaloff>:/img/logo.png</normaloff>:/img/logo.png</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QFrame#frame {background: white;
+border: 2px solid rgb(143,212,0);
+
+}
+
+QComboBox {
+    border: 2px solid rgb(143,212,0);
+    border-radius: 5px;
+    padding: 1px 18px 1px 3px;
+    min-width: 6em;
+}
+
+QComboBox:editable {
+    background: white;
+}
+
+QComboBox:!editable, QComboBox::drop-down:editable {
+     background: white;
+}
+
+/* QComboBox gets the &quot;on&quot; state when the popup is open */
+QComboBox:!editable:on, QComboBox::drop-down:editable:on {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #D3D3D3, stop: 0.4 #D8D8D8,
+                                stop: 0.5 #DDDDDD, stop: 1.0 #E1E1E1);
+}
+
+QComboBox:on { /* shift the text when the popup opens */
+    padding-top: 3px;
+    padding-left: 4px;
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 15px;
+
+    border-left-width: 1px;
+    border-left-color: rgb(143,212,0);
+    border-left-style: solid; /* just a single line */
+    border-top-right-radius: 3px; /* same radius as the QComboBox */
+    border-bottom-right-radius: 3px;
+}
+
+QComboBox::down-arrow {
+    image: url(D:/l.png);
+}
+
+QComboBox::down-arrow:on { /* shift the arrow when popup is open */
+    top: 1px;
+    left: 1px;
+}
+
+QLineEdit {
+border: 2px solid rgb(143,212,0);
+border-radius: 5px;
+}
+
+QPushButton {
+    background-color: white;
+	border-style: solid;
+    border-width: 1px;
+    border-radius: 5px;
+    border-color: rgb(143,212,0);
+
+}
+QPushButton:hover {
+    background-color: gray;
+    border-width: 2px;
+    border-radius: 5px;
+    border-color: rgb(143,212,0);
+
+}
+QPushButton:pressed {
+    background-color: rgb(143,212,0);
+    border-width: 2px;
+    border-radius: 5px;
+    border-color: rgb(143,212,0);
+
+}
+QScrollBar:vertical {               
+    border: 1px solid #999999;
+    background:white;
+    width:10px; 
+    margin: 0px 0px 0px 0px;
+    }
+QScrollBar::handle:vertical {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0  rgb(143, 212, 0), stop: 0.5 rgb(143, 212, 0),  stop:1 rgb(143, 212, 0));
+    min-height: 0px;
+    }
+   QScrollBar::add-line:vertical {
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop: 0  rgb(143, 212, 0), stop: 0.5 rgb(143, 212, 0),  stop:1 rgb(143, 212, 0));
+        height: px;
+        subcontrol-position: bottom;
+      subcontrol-origin: margin;
+    }
+    QScrollBar::sub-line:vertical {
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop: 0  rgb(143, 212, 0), stop: 0.5 rgb(143, 212, 0),  stop:1 rgb(143, 212, 0));
+       height: 0px;
+        subcontrol-position: top;
+        subcontrol-origin: margin;
+    }
+    
+QGroupBox {
+    border: 2px solid gray;
+    border-radius: 5px;
+    margin-top: 3ex; /* leave space at the top for the title */
+	font-size: 12px;
+	font: Arial;
+	font-weight: bold;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top center; /* position at the top center */
+    padding: 2 5px 2 5px;
+	top: 2px;
+	border: 2px solid gray;
+	border-radius: 5px;    
+}
+
+QWidget#muelle {
+    border: 2px solid rgb(143,212,0);
+	border-radius: 5px;
+	background: white;
+}
+QWidget#marco {
+    border: 2px solid rgb(143,212,0);
+	border-radius: 5px;
+}
+QCheckBox#c_seleccion:unchecked {
+	border-bottom: 2px solid rgb(143,212,0);
+	border-radius: 5px;
+}
+
+QCheckBox#c_seleccion::indicator:unchecked {
+    image: url(:/img/recogido.png);
+
+}
+
+QCheckBox#c_seleccion::indicator:checked {
+    image: url(:/img/desplegado.png);
+}
+QCheckBox#c_Busquedas:unchecked {
+	border-bottom: 2px solid rgb(143,212,0);
+	border-radius: 5px;
+}
+
+QCheckBox#c_Busquedas::indicator:unchecked {
+    image: url(:/img/recogido.png);
+
+}
+
+QCheckBox#c_Busquedas::indicator:checked {
+    image: url(:/img/desplegado.png);
+}
+
+QCheckBox#c_capas:unchecked {
+	border-bottom: 2px solid rgb(143,212,0);
+	border-radius: 5px;
+}
+
+QCheckBox#c_capas::indicator:unchecked {
+    image: url(:/img/recogido.png);
+
+}
+
+QCheckBox#c_capas::indicator:checked {
+    image: url(:/img/desplegado.png);
+}
+
+QWidget#g_busquedas {
+	border-bottom: 2px solid rgb(143,212,0);
+	border-radius: 5px;
+}
+
+QWidget#g_seleccion {
+	border-bottom: 2px solid rgb(143,212,0);
+	border-radius: 5px;
+}
+QWidget#g_capas {
+	border-bottom: 2px solid rgb(143,212,0);
+	border-radius: 5px;
+}</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout_4">
+    <property name="margin">
+     <number>0</number>
+    </property>
+    <item>
+     <layout class="QHBoxLayout" name="layout"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1012</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget">
+   <property name="minimumSize">
+    <size>
+     <width>275</width>
+     <height>331</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>275</width>
+     <height>524287</height>
+    </size>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QDockWidget {
+    border: 2px solid rgb(143,212,0);
+	background: white;
+}
+
+QDockWidget::title {
+    text-align: center; /* align the text to the left */
+	border: 2px solid rgb(143,212,0);
+	background: white;
+	border-radius: 5px;
+    padding-left: 5px;
+}
+
+</string>
+   </property>
+   <property name="features">
+    <set>QDockWidget::NoDockWidgetFeatures</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::RightDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>Herramientas</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>2</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QWidget" name="muelle" native="true">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="margin">
+         <number>4</number>
+        </property>
+        <item>
+         <widget class="QWidget" name="gc_seleccion" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="margin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QCheckBox" name="c_seleccion">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Selección</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QWidget" name="g_seleccion" native="true">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>100</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_2">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>6</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>6</number>
+           </property>
+           <property name="horizontalSpacing">
+            <number>0</number>
+           </property>
+           <property name="verticalSpacing">
+            <number>4</number>
+           </property>
+           <item row="1" column="2">
+            <widget class="QPushButton" name="sel_custom">
+             <property name="minimumSize">
+              <size>
+               <width>50</width>
+               <height>23</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="rsc/ficheros.qrc">
+               <normaloff>:/icons/custom.png</normaloff>:/icons/custom.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2">
+            <widget class="QPushButton" name="sel_Del">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>23</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="rsc/ficheros.qrc">
+               <normaloff>:/icons/borrar.png</normaloff>:/icons/borrar.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QPushButton" name="sel_circ">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>23</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="rsc/ficheros.qrc">
+               <normaloff>:/icons/circulo.png</normaloff>:/icons/circulo.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QPushButton" name="sel_rect">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>23</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="rsc/ficheros.qrc">
+               <normaloff>:/icons/rectangulo.png</normaloff>:/icons/rectangulo.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QPushButton" name="sel_idtool">
+             <property name="minimumSize">
+              <size>
+               <width>50</width>
+               <height>23</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>50</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="rsc/ficheros.qrc">
+               <normaloff>:/icons/info.png</normaloff>:/icons/info.png</iconset>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QWidget" name="gc_busquedas" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="margin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QCheckBox" name="c_Busquedas">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Búsquedas</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QWidget" name="g_busquedas" native="true">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>205</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <layout class="QFormLayout" name="formLayout_2">
+           <property name="horizontalSpacing">
+            <number>0</number>
+           </property>
+           <property name="verticalSpacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>6</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item row="0" column="1">
+            <widget class="QListWidget" name="listBusquedas"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QWidget" name="gc_capas" native="true">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="margin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QCheckBox" name="c_capas">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Capas</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QWidget" name="g_capas" native="true">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>205</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <layout class="QFormLayout" name="formLayout_3">
+           <property name="horizontalSpacing">
+            <number>0</number>
+           </property>
+           <property name="verticalSpacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>6</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item row="0" column="1">
+            <widget class="QListWidget" name="listCapas"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+ </widget>
+ <resources>
+  <include location="rsc/ficheros.qrc"/>
+ </resources>
+ <connections/>
+</ui>

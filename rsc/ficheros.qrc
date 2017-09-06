@@ -1,0 +1,39 @@
+<RCC>
+  <qresource prefix="img">
+    <file>descon_back.png</file>
+    <file>exportar</file>
+    <file>catastro.jpg</file>
+    <file>satelite.jpg</file>
+    <file>splash.jpg</file>
+    <file>fondo.jpg</file>
+    <file>norecogido.png</file>
+    <file>nodesplegado.png</file>
+    <file>loading.gif</file>
+    <file>desplegado.png</file>
+    <file>eye.png</file>
+    <file>eyegray.png</file>
+    <file>recogido.png</file>
+    <file>logo.png</file>
+  </qresource>
+  <qresource prefix="icons">
+    <file>carpeta.png</file>
+    <file>tabla.png</file>
+    <file>users.png</file>
+    <file>desconocido.png</file>
+    <file>policia.png</file>
+    <file>plusvalias.png</file>
+    <file>bufferlineal.png</file>
+    <file>bufferpunto.png</file>
+    <file>expediente.png</file>
+    <file>grifo.png</file>
+    <file>vados.png</file>
+    <file>gancho.png</file>
+    <file>basura.png</file>
+    <file>25694.png</file>
+    <file>info.png</file>
+    <file>borrar.png</file>
+    <file>circulo.png</file>
+    <file>custom.png</file>
+    <file>rectangulo.png</file>
+  </qresource>
+</RCC>

@@ -1,0 +1,1749 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1243</width>
+    <height>889</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>gttSIG</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="rsc/ficheros.qrc">
+    <normaloff>:/img/logo.png</normaloff>:/img/logo.png</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QFrame#frame {background: white;
+border: 2px solid rgb(143,212,0);
+
+}
+
+QComboBox {
+    border: 2px solid rgb(143,212,0);
+    border-radius: 5px;
+    padding: 1px 18px 1px 3px;
+    min-width: 6em;
+	color: dark grey;
+	font-weight: bold;
+}
+
+QComboBox:editable {
+    background: darkgrey;
+}
+
+QComboBox:!editable, QComboBox::drop-down:editable {
+     background: white;
+	
+}
+
+QComboBox:on { /* shift the text when the popup opens */
+	background: darkgrey;
+    padding-top: 3px;
+    padding-left: 4px;
+}
+
+QComboBox::drop-down {
+	font-weight: light;
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 15px;
+
+    border-left-width: 1px;
+    border-left-color: rgb(143,212,0);
+    border-left-style: solid; /* just a single line */
+    border-top-right-radius: 3px; /* same radius as the QComboBox */
+    border-bottom-right-radius: 3px;
+}
+
+QComboBox::down-arrow {
+	image: url(:/img/desplegado.png);
+}
+
+QLineEdit {
+border: 2px solid rgb(143,212,0);
+border-radius: 5px;
+}
+
+QPushButton {
+    background-color: white;
+	border-style: solid;
+    border-width: 1px;
+    border-radius: 5px;
+    border-color: rgb(143,212,0);
+
+}
+QPushButton:hover {
+    background-color: gray;
+    border-width: 2px;
+    border-radius: 5px;
+    border-color: rgb(143,212,0);
+
+}
+QPushButton:pressed {
+    background-color: rgb(143,212,0);
+    border-width: 2px;
+    border-radius: 5px;
+    border-color: rgb(143,212,0);
+
+}
+QScrollBar:vertical {               
+    border: 0px solid #999999;
+    background:white;
+    width:5px; 
+    margin: 0px 0px 0px 2px;
+    }
+QScrollBar::handle:vertical {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0  rgb(130, 130, 130), stop: 0.5 rgb(130, 130, 130),  stop:1 rgb(130, 130, 130));
+    min-height: 0px;
+    }
+   QScrollBar::add-line:vertical {
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop: 0  rgb(143, 212, 0), stop: 0.5 rgb(143, 212, 0),  stop:1 rgb(143, 212, 0));
+        height: 0px;
+        subcontrol-position: bottom;
+      subcontrol-origin: margin;
+    }
+    QScrollBar::sub-line:vertical {
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop: 0  rgb(143, 212, 0), stop: 0.5 rgb(143, 212, 0),  stop:1 rgb(143, 212, 0));
+       height: 0px;
+        subcontrol-position: top;
+        subcontrol-origin: margin;
+    }
+    
+QGroupBox {
+    border: 2px solid gray;
+    border-radius: 5px;
+    margin-top: 3ex; /* leave space at the top for the title */
+	font-size: 12px;
+	font: Arial;
+	font-weight: bold;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top center; /* position at the top center */
+    padding: 2 5px 2 5px;
+	top: 2px;
+	border: 2px solid gray;
+	border-radius: 5px;    
+}
+
+QWidget#muelle {
+    border: 2px solid rgb(143,212,0);
+	border-radius: 5px;
+	background: white;
+}
+QWidget#marco {
+    border: 2px solid rgb(143,212,0);
+	border-radius: 5px;
+}
+
+QCheckBox#c_capas {
+	color: rgb(90, 90, 90);
+	font-weight: bold;
+	spacing: 95px;
+}
+QCheckBox#c_Busquedas {
+	color: rgb(90, 90, 90);
+	font-weight: bold;
+	spacing: 85px;
+}
+QCheckBox#c_resultados {
+	color: rgb(90, 90, 90);
+	font-weight: bold;
+	spacing: 85px;
+}
+QCheckBox#c_resultados:unchecked {
+	border-bottom: 2px solid rgb(143,212,0);
+	border-radius: 5px;
+}
+
+QCheckBox#c_resultados::indicator:unchecked {
+    image: url(:/img/recogido.png);
+
+}
+
+QCheckBox#c_resultados::indicator:checked {
+    image: url(:/img/desplegado.png);
+}
+QCheckBox#c_estadisticas {
+	color: rgb(90, 90, 90);
+	font-weight: bold;
+	spacing: 50px;
+}
+QCheckBox#c_estadisticas:unchecked {
+	border-bottom: 2px solid rgb(143,212,0);
+	border-radius: 5px;
+}
+
+QCheckBox#c_estadisticas::indicator:unchecked {
+    image: url(:/img/recogido.png);
+
+}
+
+QCheckBox#c_estadisticas::indicator:checked {
+    image: url(:/img/desplegado.png);
+}
+QCheckBox#c_criterios {
+	padding-left:60px;
+	color: rgb(90, 90, 90);
+	font-weight: bold;
+}
+
+QCheckBox#c_criterios::indicator:unchecked {
+	image: url(:/img/norecogido.png);
+}
+
+QCheckBox#c_criterios::indicator:checked {
+	image: url(:/img/recogido.png)
+}
+QCheckBox#c_seleccion {
+	color: rgb(90, 90, 90);
+	font-weight: bold;
+	spacing: 90px;
+}
+QCheckBox#c_seleccion:unchecked {
+	border-bottom: 2px solid rgb(143,212,0);
+	border-radius: 5px;
+}
+
+QCheckBox#c_seleccion::indicator:unchecked {
+    image: url(:/img/recogido.png);
+}
+
+QCheckBox#c_seleccion::indicator:checked {
+    image: url(:/img/desplegado.png);
+}
+QCheckBox#c_Busquedas:unchecked {
+	border-bottom: 2px solid rgb(143,212,0);
+	border-radius: 5px;
+}
+
+QCheckBox#c_Busquedas::indicator:unchecked {
+    image: url(:/img/recogido.png);
+
+}
+
+QCheckBox#c_Busquedas::indicator:checked {
+    image: url(:/img/desplegado.png);
+}
+
+QCheckBox#c_capas:unchecked {
+	border-bottom: 2px solid rgb(143,212,0);
+	border-radius: 5px;
+}
+
+QCheckBox#c_capas::indicator:unchecked {
+    image: url(:/img/recogido.png);
+
+}
+
+QCheckBox#c_capas::indicator:checked {
+    image: url(:/img/desplegado.png);
+}
+
+
+
+
+QWidget#g_busquedas {
+	border-bottom: 2px solid rgb(143,212,0);
+	border-radius: 5px;
+}
+QWidget#g_resultados {
+	border-bottom: 2px solid rgb(143,212,0);
+	border-radius: 5px;
+}
+
+QWidget#g_seleccion {
+	border-bottom: 2px solid rgb(143,212,0);
+	border-radius: 5px;
+}
+QWidget#g_capas {
+	border-bottom: 2px solid rgb(143,212,0);
+	border-radius: 5px;
+}
+QWidget#g_estadisticas {
+	border-bottom: 2px solid rgb(143,212,0);
+	border-radius: 5px;
+}</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout_4">
+    <property name="margin">
+     <number>0</number>
+    </property>
+    <item>
+     <layout class="QHBoxLayout" name="layout"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1243</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget">
+   <property name="minimumSize">
+    <size>
+     <width>275</width>
+     <height>331</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>275</width>
+     <height>524287</height>
+    </size>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QDockWidget {
+    border: 2px solid rgb(143,212,0);
+	background: white;
+}
+
+QDockWidget::title {
+    text-align: center; /* align the text to the left */
+	border: 2px solid rgb(143,212,0);
+	background: white;
+	border-radius: 5px;
+    padding-left: 5px;
+}
+
+</string>
+   </property>
+   <property name="features">
+    <set>QDockWidget::NoDockWidgetFeatures</set>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::RightDockWidgetArea</set>
+   </property>
+   <property name="windowTitle">
+    <string>HERRAMIENTAS</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents">
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>2</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QWidget" name="muelle" native="true">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="spacing">
+         <number>1</number>
+        </property>
+        <property name="margin">
+         <number>4</number>
+        </property>
+        <item>
+         <widget class="QScrollArea" name="scrollArea">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>-156</y>
+             <width>262</width>
+             <height>971</height>
+            </rect>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QWidget#scrollAreaWidgetContents { background: white;}</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <property name="spacing">
+             <number>10</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>10</number>
+            </property>
+            <item>
+             <widget class="QWidget" name="gc_seleccion" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="margin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QCheckBox" name="c_seleccion">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true"/>
+                 </property>
+                 <property name="text">
+                  <string>SELECCIÓN</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QWidget" name="g_seleccion" native="true">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>102</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_2">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>6</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>6</number>
+               </property>
+               <property name="horizontalSpacing">
+                <number>0</number>
+               </property>
+               <property name="verticalSpacing">
+                <number>4</number>
+               </property>
+               <item row="1" column="2">
+                <widget class="QPushButton" name="sel_custom">
+                 <property name="minimumSize">
+                  <size>
+                   <width>50</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>50</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Selección libre&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="rsc/ficheros.qrc">
+                   <normaloff>:/icons/custom.png</normaloff>:/icons/custom.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>20</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QPushButton" name="sel_rect">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>50</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="toolTip">
+                  <string extracomment="Jare">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Selección rectangular&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="whatsThis">
+                  <string/>
+                 </property>
+                 <property name="text">
+                  <string extracomment="ffffff"/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="rsc/ficheros.qrc">
+                   <normaloff>:/icons/rectangulo.png</normaloff>:/icons/rectangulo.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>20</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QPushButton" name="sel_circ">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Selección circular&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="rsc/ficheros.qrc">
+                   <normaloff>:/icons/circulo.png</normaloff>:/icons/circulo.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>20</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QPushButton" name="sel_idtool">
+                 <property name="minimumSize">
+                  <size>
+                   <width>50</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>50</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Selección individual&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="rsc/ficheros.qrc">
+                   <normaloff>:/icons/info.png</normaloff>:/icons/info.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>20</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QPushButton" name="sel_buf_point">
+                 <property name="minimumSize">
+                  <size>
+                   <width>50</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>50</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Buffer radial&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="rsc/ficheros.qrc">
+                   <normaloff>:/icons/bufferpunto.png</normaloff>:/icons/bufferpunto.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>20</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="2">
+                <widget class="QPushButton" name="self_buf_line">
+                 <property name="minimumSize">
+                  <size>
+                   <width>50</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>50</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Buffer lineal&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="rsc/ficheros.qrc">
+                   <normaloff>:/icons/bufferlineal.png</normaloff>:/icons/bufferlineal.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>20</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="1">
+                <widget class="QPushButton" name="sel_Del">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="toolTip">
+                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Eliminar selección&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="rsc/ficheros.qrc">
+                   <normaloff>:/icons/borrar.png</normaloff>:/icons/borrar.png</iconset>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>20</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QWidget" name="gc_capas" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_3">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="margin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QCheckBox" name="c_capas">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true"/>
+                 </property>
+                 <property name="text">
+                  <string>CAPAS</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QWidget" name="g_capas" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>180</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <layout class="QFormLayout" name="formLayout_3">
+               <property name="fieldGrowthPolicy">
+                <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+               </property>
+               <property name="horizontalSpacing">
+                <number>0</number>
+               </property>
+               <property name="verticalSpacing">
+                <number>0</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>6</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>6</number>
+               </property>
+               <item row="0" column="1">
+                <widget class="QListWidget" name="listCapas">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::NoFrame</enum>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QWidget" name="gc_busquedas" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_2">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="margin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QCheckBox" name="c_Busquedas">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true"/>
+                 </property>
+                 <property name="text">
+                  <string>BÚSQUEDAS</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QWidget" name="g_busquedas" native="true">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>205</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_12">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>6</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>6</number>
+               </property>
+               <item>
+                <widget class="QCheckBox" name="c_criterios">
+                 <property name="text">
+                  <string>Mostrar criterios</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QWidget" name="gc_resultados" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_5">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="margin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QCheckBox" name="c_resultados">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true"/>
+                 </property>
+                 <property name="text">
+                  <string>RESULTADOS</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QWidget" name="g_resultados" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>16777</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QLineEdit {
+	border: 0px;
+	border-radius: 0 px;
+	border-bottom: 1px solid darkgrey;
+	
+}</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_4">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>6</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>6</number>
+               </property>
+               <item>
+                <layout class="QFormLayout" name="formLayout">
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="label">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">QLabel {
+	color: rgb(91,91,91);
+	font-weight:bold;
+	padding-left: 3px;
+}</string>
+                   </property>
+                   <property name="text">
+                    <string>Finca:</string>
+                   </property>
+                   <property name="margin">
+                    <number>0</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QComboBox" name="fincas">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QLineEdit" name="direccion">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <family>Arial</family>
+                    </font>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true"/>
+                   </property>
+                   <property name="readOnly">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="label_2">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">QLabel {
+	color: rgb(91,91,91);
+	font-weight:bold;
+	padding-left: 3px;
+}</string>
+                   </property>
+                   <property name="text">
+                    <string>Dirección:</string>
+                   </property>
+                   <property name="margin">
+                    <number>0</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <widget class="QTabWidget" name="tributos">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>205</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="toolTip">
+                  <string/>
+                 </property>
+                 <property name="layoutDirection">
+                  <enum>Qt::LeftToRight</enum>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">QTabWidget::pane {
+	border-top: 1px solid rgb(143,212,0);
+}
+QTabBar::tab {
+	border: 1px solid rgb(143,212,0);
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	background: rgb(200,200,200);
+	padding-left: 7.5px;
+	width:30;
+}
+QTabBar::tab:hover{
+	border: 1px solid rgb(143,212,0);
+	background: white;
+	height: 27px;
+}
+QTabBar::tab:selected{
+	border: 1px solid rgb(143,212,0);
+	background: white;
+	height: 27px;
+}
+QTabBar::tab:!selected{
+	border: 1px solid rgb(143,212,0);
+	margin-top: 2px;
+	height: 25px;
+}
+QTabBar::scroller{
+	height: 25px;
+	width:15px;
+}
+QTabBar QToolButton {
+	border: 1px solid rgb(143,212,0);
+	background-color: white;
+	height: 25px;	
+}
+QTabBar QToolButton::right-arrow {
+	image: url(:/img/recogido.png);
+}
+QTabBar QToolButton::left-arrow {
+	image: url(:/img/norecogido.png);
+}</string>
+                 </property>
+                 <property name="inputMethodHints">
+                  <set>Qt::ImhNone</set>
+                 </property>
+                 <property name="tabShape">
+                  <enum>QTabWidget::Rounded</enum>
+                 </property>
+                 <property name="currentIndex">
+                  <number>0</number>
+                 </property>
+                 <property name="iconSize">
+                  <size>
+                   <width>20</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="documentMode">
+                  <bool>false</bool>
+                 </property>
+                 <widget class="QWidget" name="ibi">
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;IBI&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <attribute name="icon">
+                   <iconset resource="rsc/ficheros.qrc">
+                    <normaloff>:/icons/25694.png</normaloff>:/icons/25694.png</iconset>
+                  </attribute>
+                  <attribute name="title">
+                   <string/>
+                  </attribute>
+                  <layout class="QVBoxLayout" name="verticalLayout_5">
+                   <property name="leftMargin">
+                    <number>2</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>2</number>
+                   </property>
+                   <item>
+                    <widget class="QListWidget" name="resultados_ibi">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">QListWidget:item {
+	border-bottom: 1px solid darkgrey;
+	padding-bottom: 5px;
+}</string>
+                     </property>
+                     <property name="frameShape">
+                      <enum>QFrame::NoFrame</enum>
+                     </property>
+                     <property name="horizontalScrollBarPolicy">
+                      <enum>Qt::ScrollBarAlwaysOff</enum>
+                     </property>
+                     <property name="dragDropMode">
+                      <enum>QAbstractItemView::DragOnly</enum>
+                     </property>
+                     <property name="verticalScrollMode">
+                      <enum>QAbstractItemView::ScrollPerPixel</enum>
+                     </property>
+                     <property name="movement">
+                      <enum>QListView::Free</enum>
+                     </property>
+                     <property name="resizeMode">
+                      <enum>QListView::Adjust</enum>
+                     </property>
+                     <property name="spacing">
+                      <number>2</number>
+                     </property>
+                     <property name="selectionRectVisible">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                 <widget class="QWidget" name="vados">
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Entradas de vehículo&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <attribute name="icon">
+                   <iconset resource="rsc/ficheros.qrc">
+                    <normaloff>:/icons/vados.png</normaloff>:/icons/vados.png</iconset>
+                  </attribute>
+                  <attribute name="title">
+                   <string/>
+                  </attribute>
+                  <layout class="QVBoxLayout" name="verticalLayout_6">
+                   <property name="leftMargin">
+                    <number>2</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>2</number>
+                   </property>
+                   <item>
+                    <widget class="QListWidget" name="resultados_vados">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">QListWidget:item {
+	border-bottom: 1px solid darkgrey;
+	padding-bottom: 5px;
+}</string>
+                     </property>
+                     <property name="frameShape">
+                      <enum>QFrame::NoFrame</enum>
+                     </property>
+                     <property name="horizontalScrollBarPolicy">
+                      <enum>Qt::ScrollBarAlwaysOff</enum>
+                     </property>
+                     <property name="dragDropMode">
+                      <enum>QAbstractItemView::DragOnly</enum>
+                     </property>
+                     <property name="verticalScrollMode">
+                      <enum>QAbstractItemView::ScrollPerPixel</enum>
+                     </property>
+                     <property name="movement">
+                      <enum>QListView::Free</enum>
+                     </property>
+                     <property name="resizeMode">
+                      <enum>QListView::Adjust</enum>
+                     </property>
+                     <property name="spacing">
+                      <number>2</number>
+                     </property>
+                     <property name="selectionRectVisible">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                 <widget class="QWidget" name="basuras">
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Residuos&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <attribute name="icon">
+                   <iconset resource="rsc/ficheros.qrc">
+                    <normaloff>:/icons/basura.png</normaloff>:/icons/basura.png</iconset>
+                  </attribute>
+                  <attribute name="title">
+                   <string/>
+                  </attribute>
+                  <layout class="QVBoxLayout" name="verticalLayout_7">
+                   <property name="leftMargin">
+                    <number>2</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>2</number>
+                   </property>
+                   <item>
+                    <widget class="QListWidget" name="resultados_basuras">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">QListWidget:item {
+	border-bottom: 1px solid darkgrey;
+	padding-bottom: 5px;
+}</string>
+                     </property>
+                     <property name="frameShape">
+                      <enum>QFrame::NoFrame</enum>
+                     </property>
+                     <property name="horizontalScrollBarPolicy">
+                      <enum>Qt::ScrollBarAlwaysOff</enum>
+                     </property>
+                     <property name="dragDropMode">
+                      <enum>QAbstractItemView::DragOnly</enum>
+                     </property>
+                     <property name="verticalScrollMode">
+                      <enum>QAbstractItemView::ScrollPerPixel</enum>
+                     </property>
+                     <property name="movement">
+                      <enum>QListView::Free</enum>
+                     </property>
+                     <property name="resizeMode">
+                      <enum>QListView::Adjust</enum>
+                     </property>
+                     <property name="spacing">
+                      <number>2</number>
+                     </property>
+                     <property name="selectionRectVisible">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                 <widget class="QWidget" name="agua">
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Agua&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <attribute name="icon">
+                   <iconset resource="rsc/ficheros.qrc">
+                    <normaloff>:/icons/grifo.png</normaloff>:/icons/grifo.png</iconset>
+                  </attribute>
+                  <attribute name="title">
+                   <string/>
+                  </attribute>
+                  <layout class="QVBoxLayout" name="verticalLayout_8">
+                   <property name="leftMargin">
+                    <number>2</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>2</number>
+                   </property>
+                   <item>
+                    <widget class="QListWidget" name="resultados_agua">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">QListWidget:item {
+	border-bottom: 1px solid darkgrey;
+	padding-bottom: 5px;
+}</string>
+                     </property>
+                     <property name="frameShape">
+                      <enum>QFrame::NoFrame</enum>
+                     </property>
+                     <property name="horizontalScrollBarPolicy">
+                      <enum>Qt::ScrollBarAlwaysOff</enum>
+                     </property>
+                     <property name="dragDropMode">
+                      <enum>QAbstractItemView::DragOnly</enum>
+                     </property>
+                     <property name="verticalScrollMode">
+                      <enum>QAbstractItemView::ScrollPerPixel</enum>
+                     </property>
+                     <property name="movement">
+                      <enum>QListView::Free</enum>
+                     </property>
+                     <property name="resizeMode">
+                      <enum>QListView::Adjust</enum>
+                     </property>
+                     <property name="spacing">
+                      <number>2</number>
+                     </property>
+                     <property name="selectionRectVisible">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                 <widget class="QWidget" name="plusvalias">
+                  <attribute name="icon">
+                   <iconset resource="rsc/ficheros.qrc">
+                    <normaloff>:/icons/plusvalias.png</normaloff>:/icons/plusvalias.png</iconset>
+                  </attribute>
+                  <attribute name="title">
+                   <string/>
+                  </attribute>
+                  <layout class="QVBoxLayout" name="verticalLayout_10">
+                   <property name="leftMargin">
+                    <number>2</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>2</number>
+                   </property>
+                   <item>
+                    <widget class="QListWidget" name="resultados_plusvalias">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">QListWidget:item {
+	border-bottom: 1px solid darkgrey;
+	padding-bottom: 5px;
+}</string>
+                     </property>
+                     <property name="frameShape">
+                      <enum>QFrame::NoFrame</enum>
+                     </property>
+                     <property name="horizontalScrollBarPolicy">
+                      <enum>Qt::ScrollBarAlwaysOff</enum>
+                     </property>
+                     <property name="dragDropMode">
+                      <enum>QAbstractItemView::DragOnly</enum>
+                     </property>
+                     <property name="verticalScrollMode">
+                      <enum>QAbstractItemView::ScrollPerPixel</enum>
+                     </property>
+                     <property name="movement">
+                      <enum>QListView::Free</enum>
+                     </property>
+                     <property name="resizeMode">
+                      <enum>QListView::Adjust</enum>
+                     </property>
+                     <property name="spacing">
+                      <number>2</number>
+                     </property>
+                     <property name="selectionRectVisible">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                 <widget class="QWidget" name="icio">
+                  <attribute name="icon">
+                   <iconset resource="rsc/ficheros.qrc">
+                    <normaloff>:/icons/gancho.png</normaloff>:/icons/gancho.png</iconset>
+                  </attribute>
+                  <attribute name="title">
+                   <string/>
+                  </attribute>
+                  <layout class="QVBoxLayout" name="verticalLayout_11">
+                   <property name="leftMargin">
+                    <number>2</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>2</number>
+                   </property>
+                   <item>
+                    <widget class="QListWidget" name="resultados_icio">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">QListWidget:item {
+	border-bottom: 1px solid darkgrey;
+	padding-bottom: 5px;
+}</string>
+                     </property>
+                     <property name="frameShape">
+                      <enum>QFrame::NoFrame</enum>
+                     </property>
+                     <property name="horizontalScrollBarPolicy">
+                      <enum>Qt::ScrollBarAlwaysOff</enum>
+                     </property>
+                     <property name="dragDropMode">
+                      <enum>QAbstractItemView::DragOnly</enum>
+                     </property>
+                     <property name="verticalScrollMode">
+                      <enum>QAbstractItemView::ScrollPerPixel</enum>
+                     </property>
+                     <property name="movement">
+                      <enum>QListView::Free</enum>
+                     </property>
+                     <property name="resizeMode">
+                      <enum>QListView::Adjust</enum>
+                     </property>
+                     <property name="spacing">
+                      <number>2</number>
+                     </property>
+                     <property name="selectionRectVisible">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                 <widget class="QWidget" name="expedientes">
+                  <property name="toolTip">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Expedientes&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                  <attribute name="icon">
+                   <iconset resource="rsc/ficheros.qrc">
+                    <normaloff>:/icons/expediente.png</normaloff>:/icons/expediente.png</iconset>
+                  </attribute>
+                  <attribute name="title">
+                   <string/>
+                  </attribute>
+                  <layout class="QVBoxLayout" name="verticalLayout_9">
+                   <property name="leftMargin">
+                    <number>2</number>
+                   </property>
+                   <property name="rightMargin">
+                    <number>2</number>
+                   </property>
+                   <item>
+                    <widget class="QListWidget" name="resultados_expedientes">
+                     <property name="sizePolicy">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                       <horstretch>0</horstretch>
+                       <verstretch>0</verstretch>
+                      </sizepolicy>
+                     </property>
+                     <property name="styleSheet">
+                      <string notr="true">QListWidget:item {
+	border-bottom: 1px solid darkgrey;
+	padding-bottom: 5px;
+}</string>
+                     </property>
+                     <property name="frameShape">
+                      <enum>QFrame::NoFrame</enum>
+                     </property>
+                     <property name="horizontalScrollBarPolicy">
+                      <enum>Qt::ScrollBarAlwaysOff</enum>
+                     </property>
+                     <property name="dragDropMode">
+                      <enum>QAbstractItemView::DragOnly</enum>
+                     </property>
+                     <property name="verticalScrollMode">
+                      <enum>QAbstractItemView::ScrollPerPixel</enum>
+                     </property>
+                     <property name="movement">
+                      <enum>QListView::Free</enum>
+                     </property>
+                     <property name="resizeMode">
+                      <enum>QListView::Adjust</enum>
+                     </property>
+                     <property name="spacing">
+                      <number>2</number>
+                     </property>
+                     <property name="selectionRectVisible">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </widget>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QWidget" name="gc_estadisticas" native="true">
+              <layout class="QHBoxLayout" name="horizontalLayout_6">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="margin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QCheckBox" name="c_estadisticas">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>ESTADÍSTICAS / EXPORTAR</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QWidget" name="g_estadisticas" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <layout class="QGridLayout" name="gridLayout">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>8</number>
+               </property>
+               <property name="horizontalSpacing">
+                <number>0</number>
+               </property>
+               <property name="verticalSpacing">
+                <number>6</number>
+               </property>
+               <item row="1" column="0">
+                <widget class="QPushButton" name="statDesc">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Desconocidos</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="rsc/ficheros.qrc">
+                   <normaloff>:/icons/desconocido.png</normaloff>:/icons/desconocido.png</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="0" colspan="2">
+                <widget class="QComboBox" name="cb_stats">
+                 <property name="minimumSize">
+                  <size>
+                   <width>103</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QPushButton" name="statExport">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Exportar</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="rsc/ficheros.qrc">
+                   <normaloff>:/img/exportar</normaloff>:/img/exportar</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QPushButton" name="lshp">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>SHP</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="rsc/ficheros.qrc">
+                   <normaloff>:/img/exportar</normaloff>:/img/exportar</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="0">
+                <widget class="QPushButton" name="tablaDesc">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>Desconocidos</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="rsc/ficheros.qrc">
+                   <normaloff>:/icons/tabla.png</normaloff>:/icons/tabla.png</iconset>
+                 </property>
+                </widget>
+               </item>
+               <item row="3" column="0">
+                <widget class="QPushButton" name="AnaDesc">
+                 <property name="minimumSize">
+                  <size>
+                   <width>100</width>
+                   <height>30</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>100</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>     Análisis</string>
+                 </property>
+                 <property name="icon">
+                  <iconset resource="rsc/ficheros.qrc">
+                   <normaloff>:/icons/tabla.png</normaloff>:/icons/tabla.png</iconset>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+           <zorder>gc_seleccion</zorder>
+           <zorder>gc_busquedas</zorder>
+           <zorder>g_seleccion</zorder>
+           <zorder>g_busquedas</zorder>
+           <zorder>gc_capas</zorder>
+           <zorder>g_capas</zorder>
+           <zorder>gc_resultados</zorder>
+           <zorder>g_resultados</zorder>
+           <zorder>gc_estadisticas</zorder>
+           <zorder>g_estadisticas</zorder>
+           <zorder>verticalSpacer</zorder>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+ </widget>
+ <resources>
+  <include location="rsc/ficheros.qrc"/>
+ </resources>
+ <connections/>
+</ui>

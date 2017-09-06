@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>OrgSelector</class>
+ <widget class="QWidget" name="OrgSelector">
+  <property name="windowModality">
+   <enum>Qt::ApplicationModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>375</width>
+    <height>351</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="rsc/ficheros.qrc">
+    <normaloff>:/img/logo.png</normaloff>:/img/logo.png</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget#organismos {
+	border: 2px solid rgb(143,212,0);
+	border-radius: 5px;
+}
+
+QPushButton {
+    background-color: white;
+	border-style: solid;
+    border-width: 1px;
+    border-radius: 5px;
+    border-color: rgb(143,212,0);
+
+}
+QPushButton:hover {
+    background-color: gray;
+    border-width: 2px;
+    border-radius: 5px;
+    border-color: rgb(143,212,0);
+
+}
+QPushButton:pressed {
+    background-color: rgb(143,212,0);
+    border-width: 2px;
+    border-radius: 5px;
+    border-color: rgb(143,212,0);
+
+}</string>
+  </property>
+  <widget class="QListWidget" name="organismos">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>101</y>
+     <width>331</width>
+     <height>192</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="aceptar">
+   <property name="geometry">
+    <rect>
+     <x>137</x>
+     <y>310</y>
+     <width>111</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Aceptar</string>
+   </property>
+  </widget>
+  <widget class="QFrame" name="frame">
+   <property name="geometry">
+    <rect>
+     <x>133</x>
+     <y>0</y>
+     <width>101</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QFrame {
+background-image: url(:/img/fondo.jpg);
+}</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>24</x>
+     <y>80</y>
+     <width>111</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Seleccione organismo:</string>
+   </property>
+  </widget>
+ </widget>
+ <resources>
+  <include location="rsc/ficheros.qrc"/>
+ </resources>
+ <connections/>
+</ui>
